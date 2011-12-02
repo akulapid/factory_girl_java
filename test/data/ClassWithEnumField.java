@@ -1,8 +1,9 @@
 package data;
 
 public class ClassWithEnumField {
+
     enum Something{
     };
 
-    Something something;
+    Something anEnum;
 }

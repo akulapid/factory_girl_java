@@ -9,13 +9,13 @@ import static junit.framework.Assert.assertTrue;
 public class FactoryTest {
 
     @Test
-    public void shouldCreateAnInstanceOfTheClass() throws InstantiationException {
+    public void shouldInstantiateAClass() throws InstantiationException {
         assertTrue(Factory.create(SampleClass.class) instanceof SampleClass);
     }
 
     @Test(expected = InstantiationException.class)
-    public void shouldThrowExceptionWhenUsedOnAClassWithoutANullaryConstructor() throws InstantiationException {
-        Factory.create(Integer.class);
+    public void shouldThrowExceptionForClassWithoutNullaryConstructor() throws InstantiationException {
+        Factory.create(ClassWithoutNullaryConstructor.class);
     }
 
     @Test
@@ -34,16 +34,16 @@ public class FactoryTest {
     }
 
     @Test
-    public void shouldInstantiateFieldsInTheSuperClass() throws InstantiationException {
-        Car car = Factory.create(Car.class);
-        assertNotNull(car.getMotor());
-        assertNotNull(car.getChassis());
-    }
-
-    @Test
     public void shouldInstantiateNonPrimitiveFields() throws InstantiationException {
         Car car = Factory.create(Car.class);
         assertNotNull(car.getDashboard());
         assertNotNull(car.getDashboard().getSteeringWheel());
+    }
+
+    @Test
+    public void shouldInstantiateFieldsInSuperClass() throws InstantiationException {
+        Car car = Factory.create(Car.class);
+        assertNotNull(car.getMotor());
+        assertNotNull(car.getChassis());
     }
 }

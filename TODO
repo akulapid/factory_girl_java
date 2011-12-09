@@ -1,0 +1,5 @@
+# instantiate using constructor
+@ConstructorArgs
+public Object[] someMethod(){
+    return new Object[]{1, 2, 3};
+}

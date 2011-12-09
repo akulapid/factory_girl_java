@@ -3,6 +3,7 @@ package factory;
 import data.*;
 import org.junit.Test;
 
+import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 
@@ -45,5 +46,10 @@ public class FactoryTest {
         Car car = Factory.create(Car.class);
         assertNotNull(car.getMotor());
         assertNotNull(car.getChassis());
+    }
+
+    @Test
+    public void shouldSetDefaultValuesWhenInstantiatingClass() throws InstantiationException {
+        assertEquals(1000, Factory.create(Motor.class).getCapacity());
     }
 }

@@ -3,53 +3,64 @@ package factory;
 import data.*;
 import org.junit.Test;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.*;
 
 public class FactoryTest {
 
     @Test
-    public void shouldInstantiateAClass() throws InstantiationException {
+    public void shouldInstantiateAClass() {
         assertTrue(Factory.create(SampleClass.class) instanceof SampleClass);
     }
 
-    @Test(expected = InstantiationException.class)
-    public void shouldThrowExceptionForClassWithoutNullaryConstructor() throws InstantiationException {
+    @Test(expected = FactoryInstantiationException.class)
+    public void shouldThrowExceptionForClassWithoutNullaryConstructor() {
         Factory.create(ClassWithoutNullaryConstructor.class);
     }
 
     @Test
-    public void shouldNotInstantiatePrimitiveField() throws InstantiationException {
+    public void shouldNotInstantiatePrimitiveField() {
         Factory.create(ClassWithPrimitiveField.class);
     }
 
     @Test
-    public void shouldNotInstantiateArrayField() throws InstantiationException {
+    public void shouldNotInstantiateArrayField() {
         Factory.create(ClassWithArrayField.class);
     }
 
     @Test
-    public void shouldNotInstantiateEnumField() throws InstantiationException {
+    public void shouldNotInstantiateEnumField() {
         Factory.create(ClassWithEnumField.class);
     }
 
     @Test
-    public void shouldInstantiateNonPrimitiveFields() throws InstantiationException {
+    public void shouldInstantiateNonPrimitiveFields() {
         Car car = Factory.create(Car.class);
         assertNotNull(car.getDashboard());
         assertNotNull(car.getDashboard().getSteeringWheel());
     }
 
     @Test
-    public void shouldInstantiateFieldsInSuperClass() throws InstantiationException {
+    public void shouldInstantiateFieldsInSuperClass() {
         Car car = Factory.create(Car.class);
         assertNotNull(car.getMotor());
         assertNotNull(car.getChassis());
     }
 
     @Test
-    public void shouldSetDefaultValuesWhenInstantiatingClass() throws InstantiationException {
-        assertEquals(1000, Factory.create(Motor.class).getCapacity());
+    public void shouldSetDefaultValuesWhenInstantiatingClass() {
+        assertEquals(1000, Factory.create(ClassWithDefaultsDefined.class).getCapacity());
+    }
+
+    @Test
+    public void shouldNotThrowExceptionIfDefaultsIsNotDefined() {
+        try {
+            Factory.create(ClassWithoutDefaultsDefined.class);
+        } catch (NullPointerException e) {
+            fail();
+        }
+    }
+
+    @Test
+    public void shouldSetDefaultValuesForFieldsOfAClass() {
     }
 }

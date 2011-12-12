@@ -3,3 +3,6 @@
 public Object[] someMethod(){
     return new Object[]{1, 2, 3};
 }
+
+# handle exceptions and throw meaningful ones
+

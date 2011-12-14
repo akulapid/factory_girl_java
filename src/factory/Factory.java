@@ -3,6 +3,7 @@ package factory;
 import com.impetus.annovention.ClasspathDiscoverer;
 import com.impetus.annovention.Discoverer;
 import com.impetus.annovention.listener.ClassAnnotationDiscoveryListener;
+import com.sun.corba.se.pept.transport.InboundConnectionCache;
 import org.apache.commons.lang3.text.WordUtils;
 
 import java.lang.reflect.Field;
@@ -13,34 +14,7 @@ import java.util.Map;
 
 public class Factory {
 
-    private static Map<Class, Class> factoryDefaults = new HashMap<Class, Class>();
-
-    static {
-        findFactoryDefaultClasses();
-    }
-
-    public static class FactoryDefaultAnnotationListener implements ClassAnnotationDiscoveryListener {
-
-        public String[] supportedAnnotations() {
-            return new String[]{FactoryDefault.class.getName()};
-        }
-
-        public void discovered(String clazz, String annotation) {
-            try {
-                Class factoryDefaultClass = Class.forName(clazz);
-                FactoryDefault factoryDefault = (FactoryDefault) factoryDefaultClass.getAnnotation(FactoryDefault.class);
-                factoryDefaults.put(factoryDefault.type(), factoryDefaultClass);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    private static void findFactoryDefaultClasses() {
-        Discoverer discoverer = new ClasspathDiscoverer();
-        discoverer.addAnnotationListener(new FactoryDefaultAnnotationListener());
-        discoverer.discover();
-    }
+    private static DefaultsFinder defaultsFinder = new DefaultsFinder();
 
     public static <T> T create(Class<T> clazz) {
         try {
@@ -57,7 +31,7 @@ public class Factory {
     }
 
     private static <T> void setDefaults(T object) throws FactoryDefaultsInstantiationException {
-        Class defaultsClazz = factoryDefaults.get(object.getClass());
+        Class defaultsClazz = defaultsFinder.defaultsClassFor(object.getClass());
         if (defaultsClazz == null)
             return;
         try {

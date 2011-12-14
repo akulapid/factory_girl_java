@@ -47,7 +47,7 @@ public class FactoryTest {
     }
 
     @Test
-    public void shouldSetDefaultValuesWhenInstantiatingClass() {
+    public void shouldSetDefaultsWhenInstantiatingClass() {
         assertEquals(1000, Factory.create(ClassWithDefaultsDefined.class).getCapacity());
     }
 
@@ -61,6 +61,7 @@ public class FactoryTest {
     }
 
     @Test
-    public void shouldSetDefaultValuesForFieldsOfAClass() {
+    public void shouldSetDefaultsForFieldsOfMembersOfTheClass() {
+         assertEquals(25, Factory.create(Dashboard.class).getSteeringWheel().getTension());
     }
 }

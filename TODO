@@ -4,5 +4,7 @@ public Object[] someMethod(){
     return new Object[]{1, 2, 3};
 }
 
+# nice syntax to set properties on objects - chaining and all
+
 # handle exceptions and throw meaningful ones
 

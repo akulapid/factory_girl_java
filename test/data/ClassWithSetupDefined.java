@@ -1,6 +1,6 @@
 package data;
 
-public class ClassWithDefaultsDefined {
+public class ClassWithSetupDefined {
 
     int capacity;
 

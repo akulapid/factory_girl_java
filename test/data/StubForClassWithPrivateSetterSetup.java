@@ -1,6 +1,6 @@
 package data;
 
-public class StubForDefaultsClassWithPrivateSetter {
+public class StubForClassWithPrivateSetterSetup {
 
     private int foo;
 

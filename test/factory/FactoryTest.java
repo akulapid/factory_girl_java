@@ -42,21 +42,21 @@ public class FactoryTest {
     }
 
     @Test
-    public void shouldSetDefaultsWhenInstantiatingClass() {
-        assertEquals(1000, Factory.create(ClassWithDefaultsDefined.class).getCapacity());
+    public void shouldSetupWhenInstantiatingClass() {
+        assertEquals(1000, Factory.create(ClassWithSetupDefined.class).getCapacity());
     }
 
     @Test
-    public void shouldSetDefaultsForFieldsOfMembersOfTheClass() {
+    public void shouldSetupFieldsOfMembersOfTheClass() {
         assertEquals(25, Factory.create(Dashboard.class).getSteeringWheel().getTension());
     }
 
     @Test
-    public void shouldNotThrowExceptionIfDefaultsIsNotDefined() {
+    public void shouldNotThrowExceptionIfSetupIsNotDefined() {
         try {
-            Factory.create(ClassWithoutDefaultsDefined.class);
+            Factory.create(ClassWithoutSetupDefined.class);
         } catch (NullPointerException e) {
-            fail("should not try to instantiate undefined defaults class");
+            fail("should not try to instantiate undefined setup class");
         }
     }
 
@@ -66,17 +66,17 @@ public class FactoryTest {
     }
 
     @Test
-    public void shouldNotUseFactoryConstructorForDefaults() {
+    public void shouldNotUseFactoryConstructorForSetup() {
         try {
             Factory.create(ClassWithoutNullaryConstructor.class);
         } catch (Exception e) {
-            fail("should not use factory constructor for defaults");
+            fail("should not use factory constructor for setup");
         }
     }
 
     @Test
-    public void shouldUsePublicMethodsOnlyForDefaults() {
-        assertEquals(0,Factory.create(StubForDefaultsClassWithPrivateSetter.class).getFoo());
+    public void shouldUsePublicMethodsOnlyForSetup() {
+        assertEquals(0,Factory.create(StubForClassWithPrivateSetterSetup.class).getFoo());
     }
 
     @Test(expected = FactoryInstantiationException.class)
@@ -84,13 +84,13 @@ public class FactoryTest {
         Factory.create(ClassWithoutNullaryConstructorNorFactoryConstructor.class);
     }
 
-    @Test(expected = FactoryDefaultsInstantiationException.class)
-    public void shouldThrowExceptionIfDefaultsClassHasAPublicMethodThatTakesAnArgument() {
-        Factory.create(StubForDefaultsClassWithParameterizedPublicSetter.class);
+    @Test(expected = FactorySetupException.class)
+    public void shouldThrowExceptionIfSetupClassHasAPublicMethodThatTakesAnArgument() {
+        Factory.create(StubForClassWithParameterizedPublicSetterSetup.class);
     }
 
-    @Test(expected = FactoryDefaultsInstantiationException.class)
-    public void shouldThrowExceptionIfDefaultsClassHasAPublicMethodThatReturnsVoid() {
-        Factory.create(StubForDefaultsClassWithVoidPublicSetter.class);
+    @Test(expected = FactorySetupException.class)
+    public void shouldThrowExceptionIfSetupClassHasAPublicMethodThatReturnsVoid() {
+        Factory.create(StubForClassWithVoidPublicSetterSetup.class);
     }
 }

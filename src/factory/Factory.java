@@ -12,13 +12,13 @@ import java.util.List;
 
 public class Factory {
 
-    private static DefaultsFinder defaultsFinder = new DefaultsFinder();
+    private static SetupFinder setupFinder = new SetupFinder();
 
     public static <T> T create(Class<T> clazz) {
         try {
             T object = instantiate(clazz);
             instantiateFields(object, clazz);
-            setDefaults(object);
+            setup(object);
             return object;
         } catch (InstantiationException e) {
             throw new FactoryInstantiationException(e);
@@ -31,40 +31,40 @@ public class Factory {
     }
 
     private static <T> T instantiate(Class<T> clazz) throws InstantiationException, IllegalAccessException, InvocationTargetException {
-        Class defaultsClazz = defaultsFinder.defaultsClassFor(clazz);
-        if (defaultsClazz == null)
+        Class setupClazz = setupFinder.setupClassFor(clazz);
+        if (setupClazz == null)
             return clazz.newInstance();
-        Method factoryConstructorMethod = getFactoryConstructorMethod(defaultsClazz);
+        Method factoryConstructorMethod = getFactoryConstructorMethod(setupClazz);
         if (factoryConstructorMethod == null)
             return clazz.newInstance();
-        return (T) factoryConstructorMethod.invoke(defaultsClazz.newInstance());
+        return (T) factoryConstructorMethod.invoke(setupClazz.newInstance());
     }
 
-    private static Method getFactoryConstructorMethod(Class defaultsClazz) {
+    private static Method getFactoryConstructorMethod(Class setupClazz) {
         try {
-            return defaultsClazz.getDeclaredMethod("constructor");
+            return setupClazz.getDeclaredMethod("constructor");
         } catch (NoSuchMethodException e) {
             return null;
         }
     }
 
-    private static <T> void setDefaults(T object) throws FactoryDefaultsInstantiationException {
-        Class defaultsClazz = defaultsFinder.defaultsClassFor(object.getClass());
-        if (defaultsClazz == null)
+    private static <T> void setup(T object) throws FactorySetupException {
+        Class setupClazz = setupFinder.setupClassFor(object.getClass());
+        if (setupClazz == null)
             return;
         try {
-            Object defaults = defaultsClazz.newInstance();
-            List<Method> methods = Arrays.asList(defaultsClazz.getDeclaredMethods());
-            List<Method> applicableSetters = getApplicableSetters(defaultsClazz);
+            Object setup = setupClazz.newInstance();
+            List<Method> methods = Arrays.asList(setupClazz.getDeclaredMethods());
+            List<Method> applicableSetters = getApplicableSetters(setupClazz);
             assertMethodsSignature(applicableSetters);
             for (Method method : applicableSetters) {
                 Method targetMethod = object.getClass().getMethod(getTargetMethodNameFor(method.getName()), method.getReturnType());
-                targetMethod.invoke(object, method.invoke(defaults));
+                targetMethod.invoke(object, method.invoke(setup));
             }
         } catch (InstantiationException e) {
-            throw new FactoryDefaultsInstantiationException(e);
+            throw new FactorySetupException(e);
         } catch (InvalidSignatureException e) {
-            throw new FactoryDefaultsInstantiationException(e);
+            throw new FactorySetupException(e);
         } catch (InvocationTargetException e) {
             e.printStackTrace();
         } catch (NoSuchMethodException e) {
@@ -83,16 +83,16 @@ public class Factory {
         }
     }
 
-    private static List<Method> getApplicableSetters(Class defaultsClazz) {
+    private static List<Method> getApplicableSetters(Class setupClazz) {
         List<Method> publicMethods = new ArrayList<Method>();
-        for (Method method : defaultsClazz.getDeclaredMethods())
+        for (Method method : setupClazz.getDeclaredMethods())
             if (Modifier.isPublic(method.getModifiers()) && !method.getName().equals("constructor"))
                 publicMethods.add(method);
         return publicMethods;
     }
 
-    private static String getTargetMethodNameFor(String defaultsMethodName) {
-        return "set" + WordUtils.capitalize(defaultsMethodName);
+    private static String getTargetMethodNameFor(String setupSetter) {
+        return "set" + WordUtils.capitalize(setupSetter);
     }
 
     private static <T> void instantiateThisFields(Class<T> clazz, T object) throws InstantiationException, IllegalAccessException {

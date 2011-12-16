@@ -1,10 +1,10 @@
 package data;
 
-public class ClassWithoutNullaryConstructor {
+public class StubForDefaultsClassWithPrivateSetter {
 
     private int foo;
 
-    public ClassWithoutNullaryConstructor(int foo) {
+    public void setFoo(int foo){
         this.foo = foo;
     }
 

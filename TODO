@@ -1,4 +1,4 @@
-# instantiate using constructor
+# instantiate using constructor; might need to rename defaults to setup or something
 @ConstructorArgs
 public Object[] someMethod(){
     return new Object[]{1, 2, 3};
@@ -6,5 +6,13 @@ public Object[] someMethod(){
 
 # nice syntax to set properties on objects - chaining and all
 
+Factory.create(Car.class, set(){
+            {"a.b.c", new B()}
+});
+
 # handle exceptions and throw meaningful ones
+
+#presets => with name and aliases
+
+#collections
 

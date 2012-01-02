@@ -1,11 +1,29 @@
 package factory;
 
-import data.ClassWithSetupDefined;
-import data.ClassWithoutSetupDefined;
-import data.ClassWithSetupDefinedSetup;
 import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;
+
+class ClassWithSetupDefined {
+
+    int capacity;
+
+    public int getCapacity() {
+        return capacity;
+    }
+
+    public void setCapacity(int capacity) {
+        this.capacity = capacity;
+    }
+}
+
+@FactorySetup(type = ClassWithSetupDefined.class)
+class ClassWithSetupDefinedSetup {
+
+    public int capacity() {
+        return 1000;
+    }
+}
 
 public class SetupFinderTest {
 

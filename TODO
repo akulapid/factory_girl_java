@@ -16,3 +16,7 @@ Factory.create(Car.class, set(){
 
 #collections
 
+# how do you handle final classes?
+
+# can you handle template classes?
+

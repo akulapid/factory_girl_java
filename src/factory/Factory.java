@@ -33,7 +33,7 @@ public class Factory {
     private static <T> T instantiate(Class<T> clazz) throws InstantiationException, IllegalAccessException, InvocationTargetException {
         Class setupClazz = setupFinder.setupClassFor(clazz);
         if (setupClazz == null)
-            return clazz.newInstance();
+            throw new SetupNotDefinedException("No Setup Class found");
         Method factoryConstructorMethod = getFactoryConstructorMethod(setupClazz);
         if (factoryConstructorMethod == null)
             return clazz.newInstance();
@@ -54,7 +54,6 @@ public class Factory {
             return;
         try {
             Object setup = setupClazz.newInstance();
-            List<Method> methods = Arrays.asList(setupClazz.getDeclaredMethods());
             List<Method> applicableSetters = getApplicableSetters(setupClazz);
             assertMethodsSignature(applicableSetters);
             for (Method method : applicableSetters) {
@@ -98,7 +97,9 @@ public class Factory {
     private static <T> void instantiateThisFields(Class<T> clazz, T object) throws InstantiationException, IllegalAccessException {
         Field[] fields = clazz.getDeclaredFields();
         for (Field field : fields) {
-            if (!field.getType().isPrimitive() && !field.getType().isArray() && !field.getType().isEnum()) {
+            if (field.getType().equals(String.class))
+                field.set(object, new String(""));
+            else if (!field.getType().isPrimitive() && !field.getType().isArray() && !field.getType().isEnum() && !field.getType().isInterface()) {
                 field.setAccessible(true);
                 field.set(object, create(field.getType()));
             }

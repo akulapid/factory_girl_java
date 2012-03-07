@@ -31,6 +31,26 @@ class Motor {
 class Chassis {
 }
 
+@FactorySetup(type = VehicleSetup.class)
+class VehicleSetup {
+}
+
+@FactorySetup(type = MotorVehicleSetup.class)
+class MotorVehicleSetup {
+}
+
+@FactorySetup(type = Car.class)
+class CarSetup {
+}
+
+@FactorySetup(type = Motor.class)
+class MotorSetup {
+}
+
+@FactorySetup(type = Chassis.class)
+class ChassisSetup {
+}
+
 public class InheritanceInstantiationTest {
 
     @Test

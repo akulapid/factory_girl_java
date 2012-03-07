@@ -25,6 +25,18 @@ class State {
 class District {
 }
 
+@FactorySetup(type = Country.class)
+class CountrySetup {
+}
+
+@FactorySetup(type = State.class)
+class StateSetup {
+}
+
+@FactorySetup(type = District.class)
+class DistrictSetup {
+}
+
 public class CompositeInstantiationTest {
 
     @Test

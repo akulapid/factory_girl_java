@@ -8,6 +8,10 @@ class ClassWithEnumField {
     Something anEnum;
 }
 
+@FactorySetup(type = ClassWithEnumField.class)
+class ClassWithEnumFieldSetup {
+}
+
 public class EnumInstantiationTest {
 
     @Test

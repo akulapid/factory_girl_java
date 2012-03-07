@@ -6,6 +6,10 @@ class ClassWithArrayField {
     Object[] anArray;
 }
 
+@FactorySetup(type = ClassWithArrayField.class)
+class ClassWithArrayFieldSetup {
+}
+
 public class ArrayInstantiationTest {
 
     @Test

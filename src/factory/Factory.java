@@ -7,8 +7,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+
+import static java.lang.String.format;
 
 public class Factory {
 
@@ -33,7 +34,7 @@ public class Factory {
     private static <T> T instantiate(Class<T> clazz) throws InstantiationException, IllegalAccessException, InvocationTargetException {
         Class setupClazz = setupFinder.setupClassFor(clazz);
         if (setupClazz == null)
-            throw new SetupNotDefinedException("No Setup Class found");
+            throw new SetupNotDefinedException(format("No FactorySetup found for %s", clazz.getName()));
         Method factoryConstructorMethod = getFactoryConstructorMethod(setupClazz);
         if (factoryConstructorMethod == null)
             return clazz.newInstance();
@@ -61,12 +62,12 @@ public class Factory {
                 targetMethod.invoke(object, method.invoke(setup));
             }
         } catch (InstantiationException e) {
-            throw new FactorySetupException(e);
+            throw new FactorySetupException("", e);
         } catch (InvalidSignatureException e) {
-            throw new FactorySetupException(e);
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
+            throw new FactorySetupException("", e);
         } catch (NoSuchMethodException e) {
+            throw new FactorySetupException("", e);
+        } catch (InvocationTargetException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {
             e.printStackTrace();

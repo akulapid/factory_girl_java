@@ -1,9 +1,11 @@
 package factory;
 
-import data.*;
 import org.junit.Test;
 
 class Stub {
+}
+
+class ClassWithInvalidSetupDefinition {
 }
 
 @FactorySetup(type = Stub.class)
@@ -17,6 +19,14 @@ class StubSetup {
     }
 }
 
+@FactorySetup(type = ClassWithInvalidSetupDefinition.class)
+class ClassWithInvalidSetupDefinitionSetup {
+
+    public int undefinedMethod() {
+        return 0;
+    }
+}
+
 public class SetupDefinitionTest {
 
     @Test(expected = FactorySetupException.class)
@@ -27,5 +37,10 @@ public class SetupDefinitionTest {
     @Test(expected = FactorySetupException.class)
     public void shouldThrowExceptionIfSetupClassHasAPublicMethodThatReturnsVoid() {
         Factory.create(Stub.class);
+    }
+
+    @Test(expected = FactorySetupException.class)
+    public void shouldThrowExceptionIfSetupMethodIsNotFound() {
+        Factory.create(ClassWithInvalidSetupDefinition.class);
     }
 }

@@ -8,6 +8,10 @@ class ClassWithPrimitiveField {
     int aPrimitiveField;
 }
 
+@FactorySetup(type = ClassWithPrimitiveField.class)
+class ClassWithPrimitiveFieldSetup {
+}
+
 public class PrimitiveTypeInstantiationTest {
 
     @Test

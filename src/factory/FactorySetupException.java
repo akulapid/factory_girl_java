@@ -1,7 +1,7 @@
 package factory;
 
 public class FactorySetupException extends RuntimeException {
-    public FactorySetupException(Throwable e) {
-        super(e);
+    public FactorySetupException(String message, Throwable e) {
+        super(message, e);
     }
 }

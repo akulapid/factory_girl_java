@@ -16,6 +16,11 @@ class ClassComposingAnInterface {
         return list;
     }
 }
+
+@FactorySetup(type = ClassComposingAnInterface.class)
+class ClassComposingAnInterfaceSetup {
+}
+
 public class InterfaceInstantiationTest {
 
     @Test

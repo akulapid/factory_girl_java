@@ -31,16 +31,16 @@ public class SetupDefinitionTest {
 
     @Test(expected = FactorySetupException.class)
     public void shouldThrowExceptionIfSetupClassHasAPublicMethodThatTakesAnArgument() {
-        Factory.create(Stub.class);
+        Instantiator.create(Stub.class);
     }
 
     @Test(expected = FactorySetupException.class)
     public void shouldThrowExceptionIfSetupClassHasAPublicMethodThatReturnsVoid() {
-        Factory.create(Stub.class);
+        Instantiator.create(Stub.class);
     }
 
     @Test(expected = FactorySetupException.class)
     public void shouldThrowExceptionIfSetupMethodIsNotFound() {
-        Factory.create(ClassWithInvalidSetupDefinition.class);
+        Instantiator.create(ClassWithInvalidSetupDefinition.class);
     }
 }

@@ -41,7 +41,7 @@ public class CompositeInstantiationTest {
 
     @Test
     public void shouldInstantiateComposedNonPrimitiveFields() {
-        Country country = Factory.create(Country.class);
+        Country country = Instantiator.create(Country.class);
         assertNotNull(country.getState());
         assertNotNull(country.getState().getDistrict());
     }

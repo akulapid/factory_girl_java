@@ -11,7 +11,7 @@ import java.util.List;
 
 import static java.lang.String.format;
 
-public class Factory {
+public class Instantiator {
 
     private static SetupFinder setupFinder = new SetupFinder();
 

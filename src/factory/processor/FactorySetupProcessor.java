@@ -18,14 +18,21 @@ import java.util.Set;
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
 public class FactorySetupProcessor extends AbstractProcessor {
 
+    private List<TypeElement> elements = new ArrayList<TypeElement>();
+
     @Override
     public boolean process(Set<? extends TypeElement> annotationElements, RoundEnvironment roundEnvironment) {
         for (TypeElement annotationElement : annotationElements) {
             for (Element factorySetupElement : roundEnvironment.getElementsAnnotatedWith(annotationElement)) {
-                if (factorySetupElement instanceof TypeElement)
-                    handleFactorySetupAnnotatedClass(getFactorySetupType(factorySetupElement));
+                if (factorySetupElement instanceof TypeElement) {
+                    TypeElement element = getFactorySetupType(factorySetupElement);
+                    elements.add(element);
+                    handleFactorySetupAnnotatedClass(element);
+                }
             }
         }
+        if (roundEnvironment.processingOver())
+            writeFactorySource(elements);
         return true;
     }
 
@@ -37,6 +44,40 @@ public class FactorySetupProcessor extends AbstractProcessor {
             return (TypeElement) ((DeclaredType) e.getTypeMirror()).asElement();
         }
         throw new RuntimeException("error: did not throw MirroredTypeException as expected.");
+    }
+
+    private void writeFactorySource(List<TypeElement> elements) {
+        OutputStream os = null;
+        try {
+            os = processingEnv.getFiler().createSourceFile("factories.Factory").openOutputStream();
+            PrintWriter pw = new PrintWriter(os);
+            pw.print(getFactorySource(elements));
+            pw.close();
+            os.close();
+        } catch (Exception e) {
+            log("Error", stackTraceToString(e));
+        }
+    }
+
+    private String getFactorySource(List<TypeElement> elements) {
+        StringBuilder source = new StringBuilder();
+        source.append("package factories;\n\n");
+        source.append("public class Factory {\n\n");
+        for (TypeElement element : elements)
+            source.append(getFactoryMethodSource(element));
+        source.append("}");
+        return source.toString();
+    }
+
+    // TODO: will break if two classes in diffent packages have the same name, alias will fix this
+    private String getFactoryMethodSource(TypeElement element) {
+        StringBuilder source = new StringBuilder();
+        String classSimpleName = element.getSimpleName().toString();
+        String proxyClassName = classSimpleName + "_GeneratedFactoryProxy";
+        source.append("    public static factories." + proxyClassName + " new" + classSimpleName + "() {\n");
+        source.append("        return new " + proxyClassName + "();\n");
+        source.append("    }\n");
+        return source.toString();
     }
 
     private void handleFactorySetupAnnotatedClass(TypeElement element) {

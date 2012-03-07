@@ -55,7 +55,7 @@ public class InheritanceInstantiationTest {
 
     @Test
     public void shouldInstantiateFieldsInSuperClass() {
-        Car car = Factory.create(Car.class);
+        Car car = Instantiator.create(Car.class);
         assertNotNull(car.getMotor());
         assertNotNull(car.getChassis());
     }

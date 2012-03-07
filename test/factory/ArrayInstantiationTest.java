@@ -14,6 +14,6 @@ public class ArrayInstantiationTest {
 
     @Test
     public void shouldNotTryToInstantiateArrayField() {
-        Factory.create(ClassWithArrayField.class);
+        Instantiator.create(ClassWithArrayField.class);
     }
 }

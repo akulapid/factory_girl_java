@@ -15,6 +15,6 @@ public class InnerClassInstantiationTest {
 
     @Test
     public void shouldInstantiateAnInnerClass() {
-        assertTrue(Factory.create(SampleClass.class) instanceof SampleClass);
+        assertTrue(Instantiator.create(SampleClass.class) instanceof SampleClass);
     }
 }

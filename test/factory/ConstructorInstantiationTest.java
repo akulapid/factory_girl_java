@@ -30,13 +30,13 @@ public class ConstructorInstantiationTest {
 
     @Test
     public void shouldInstantiateThroughConstructor() {
-        assertEquals(4, Factory.create(ClassWithoutNullaryConstructor.class).getFoo());
+        assertEquals(4, Instantiator.create(ClassWithoutNullaryConstructor.class).getFoo());
     }
 
     @Test
     public void shouldNotUseFactoryConstructorForSetup() {
         try {
-            Factory.create(ClassWithoutNullaryConstructor.class);
+            Instantiator.create(ClassWithoutNullaryConstructor.class);
         } catch (Exception e) {
             fail("should not use factory constructor for setup");
         }

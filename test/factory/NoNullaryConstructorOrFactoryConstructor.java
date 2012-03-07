@@ -19,6 +19,6 @@ public class NoNullaryConstructorOrFactoryConstructor {
 
     @Test(expected = FactoryInstantiationException.class)
     public void shouldThrowExceptionForClassWithoutNullaryConstructorNorFactoryConstructor() {
-        Factory.create(ClassWithoutNullaryConstructorNorFactoryConstructor.class);
+        Instantiator.create(ClassWithoutNullaryConstructorNorFactoryConstructor.class);
     }
 }

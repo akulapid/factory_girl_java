@@ -29,7 +29,7 @@ public class StringInstantiationTest {
     @Test
     public void shouldNotThrowExceptionWhenInstantiatingStringField() {
         try {
-            Factory.create(ClassWithStringField.class);
+            Instantiator.create(ClassWithStringField.class);
         } catch (Exception e) {
             fail();
         }
@@ -37,6 +37,6 @@ public class StringInstantiationTest {
 
     @Test
     public void shouldSetupStringField() {
-        assertEquals("bar", Factory.create(ClassWithStringField.class).getFoo());
+        assertEquals("bar", Instantiator.create(ClassWithStringField.class).getFoo());
     }
 }

@@ -25,6 +25,6 @@ public class InterfaceInstantiationTest {
 
     @Test
     public void shouldNotInstantiateInterfaceFields() {
-        assertNull(Factory.create(ClassComposingAnInterface.class).getList());
+        assertNull(Instantiator.create(ClassComposingAnInterface.class).getList());
     }
 }

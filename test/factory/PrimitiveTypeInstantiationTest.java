@@ -16,6 +16,6 @@ public class PrimitiveTypeInstantiationTest {
 
     @Test
     public void shouldNotTryToInstantiatePrimitiveField() {
-        Factory.create(ClassWithPrimitiveField.class);
+        Instantiator.create(ClassWithPrimitiveField.class);
     }
 }

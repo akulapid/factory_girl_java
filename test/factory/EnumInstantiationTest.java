@@ -16,6 +16,6 @@ public class EnumInstantiationTest {
 
     @Test
     public void shouldNotInstantiateEnumField() {
-        Factory.create(ClassWithEnumField.class);
+        Instantiator.create(ClassWithEnumField.class);
     }
 }

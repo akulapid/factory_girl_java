@@ -57,17 +57,17 @@ public class InstantiationTest {
 
     @Test
     public void shouldInstantiateAClass() {
-        assertTrue(Factory.create(Train.class) instanceof Train);
+        assertTrue(Instantiator.create(Train.class) instanceof Train);
     }
 
     @Test
     public void shouldSetupWhenInstantiatingClass() {
-        assertEquals(1000, Factory.create(Train.class).getCapacity());
+        assertEquals(1000, Instantiator.create(Train.class).getCapacity());
     }
 
     @Test
     public void shouldSetupFieldsOfMembersOfTheClass() {
-        assertEquals(25, Factory.create(Train.class).getEngine().getKind());
+        assertEquals(25, Instantiator.create(Train.class).getEngine().getKind());
     }
 }
 

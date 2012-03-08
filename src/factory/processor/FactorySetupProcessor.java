@@ -52,7 +52,7 @@ public class FactorySetupProcessor extends AbstractProcessor {
     // see http://blog.retep.org/2009/02/13/getting-class-values-from-annotations-in-an-annotationprocessor
     private TypeElement getFactorySetupType(Element factorySetupElement) {
         try {
-            factorySetupElement.getAnnotation(FactorySetup.class).type();
+            factorySetupElement.getAnnotation(FactorySetup.class).value();
         } catch (MirroredTypeException e) {
             return (TypeElement) ((DeclaredType) e.getTypeMirror()).asElement();
         }

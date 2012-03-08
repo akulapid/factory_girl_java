@@ -8,7 +8,7 @@ class ClassWithEnumField {
     Something anEnum;
 }
 
-@FactorySetup(type = ClassWithEnumField.class)
+@FactorySetup(ClassWithEnumField.class)
 class ClassWithEnumFieldSetup {
 }
 

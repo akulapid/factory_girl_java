@@ -31,7 +31,7 @@ public class SetupFinder {
             try {
                 Class factorySetupClass = Class.forName(clazz);
                 FactorySetup factorySetup = (FactorySetup) factorySetupClass.getAnnotation(FactorySetup.class);
-                factorySetups.put(factorySetup.type(), factorySetupClass);
+                factorySetups.put(factorySetup.value(), factorySetupClass);
             } catch (Exception e) {
                 e.printStackTrace();
             }

@@ -6,7 +6,7 @@ class ClassWithArrayField {
     Object[] anArray;
 }
 
-@FactorySetup(type = ClassWithArrayField.class)
+@FactorySetup(ClassWithArrayField.class)
 class ClassWithArrayFieldSetup {
 }
 

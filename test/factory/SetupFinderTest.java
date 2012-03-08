@@ -17,7 +17,7 @@ class ClassWithSetupDefined {
     }
 }
 
-@FactorySetup(type = ClassWithSetupDefined.class)
+@FactorySetup(ClassWithSetupDefined.class)
 class ClassWithSetupDefinedSetup {
 
     public int capacity() {

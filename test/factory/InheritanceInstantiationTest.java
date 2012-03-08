@@ -31,23 +31,23 @@ class Motor {
 class Chassis {
 }
 
-@FactorySetup(type = VehicleSetup.class)
+@FactorySetup(VehicleSetup.class)
 class VehicleSetup {
 }
 
-@FactorySetup(type = MotorVehicleSetup.class)
+@FactorySetup(MotorVehicleSetup.class)
 class MotorVehicleSetup {
 }
 
-@FactorySetup(type = Car.class)
+@FactorySetup(Car.class)
 class CarSetup {
 }
 
-@FactorySetup(type = Motor.class)
+@FactorySetup(Motor.class)
 class MotorSetup {
 }
 
-@FactorySetup(type = Chassis.class)
+@FactorySetup(Chassis.class)
 class ChassisSetup {
 }
 

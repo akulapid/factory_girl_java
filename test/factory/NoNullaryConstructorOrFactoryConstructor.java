@@ -8,7 +8,7 @@ class ClassWithoutNullaryConstructorNorFactoryConstructor {
     }
 }
 
-@FactorySetup(type = ClassWithoutNullaryConstructorNorFactoryConstructor.class)
+@FactorySetup(ClassWithoutNullaryConstructorNorFactoryConstructor.class)
 class ClassWithoutNullaryConstructorNorFactoryConstructorSetup {
 
     public void foo(Object something) {

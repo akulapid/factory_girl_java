@@ -18,7 +18,7 @@ class ClassWithoutNullaryConstructor {
     }
 }
 
-@FactorySetup(type = ClassWithoutNullaryConstructor.class)
+@FactorySetup(ClassWithoutNullaryConstructor.class)
 class ClassWithoutNullaryConstructorSetup {
 
     public ClassWithoutNullaryConstructor constructor() {

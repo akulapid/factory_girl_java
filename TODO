@@ -20,3 +20,6 @@ Factory.create(Car.class, set(){
 
 # can you handle template classes?
 
+# openjdk?
+
+# how do you pick setup when there are multiple aliases? esp when it's a instatiated as a field

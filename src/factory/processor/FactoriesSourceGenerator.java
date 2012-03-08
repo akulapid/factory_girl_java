@@ -1,6 +1,7 @@
 package factory.processor;
 
 import factory.ProxyClassNameMapper;
+import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.processing.Filer;
 import javax.lang.model.element.TypeElement;
@@ -18,9 +19,9 @@ public class FactoriesSourceGenerator {
         this.proxyClassNameMapper = proxyClassNameMapper;
     }
 
-    public void writeSource(List<TypeElement> elements) {
+    public void writeSource(List<Pair<TypeElement,String>> elements) {
         try {
-            OutputStream os = filer.createSourceFile("factories.Factory").openOutputStream();
+            OutputStream os = filer.createSourceFile("factory.Factory").openOutputStream();
             PrintWriter pw = new PrintWriter(os);
             pw.print(getSource(elements));
             pw.close();
@@ -30,24 +31,26 @@ public class FactoriesSourceGenerator {
         }
     }
 
-    String getSource(List<TypeElement> elements) {
+    String getSource(List<Pair<TypeElement, String>> elements) {
         StringBuilder source = new StringBuilder();
-        source.append("package factories;\n\n");
+        source.append("package factory;\n\n");
         source.append("public class Factory {\n\n");
-        for (TypeElement element : elements)
-            source.append(getFactorySource(element));
+        for (Pair<TypeElement, String> elementAliasPair : elements)
+            source.append(getFactorySource(elementAliasPair));
         source.append("}");
         return source.toString();
     }
 
-    // TODO: will break if two classes in diffent packages have the same name, alias will fix this
-    String getFactorySource(TypeElement element) {
-        StringBuilder source = new StringBuilder();
-        String classSimpleName = element.getSimpleName().toString();
+    String getFactorySource(Pair<TypeElement, String> elementAliasPair) {
+        String classSimpleName = elementAliasPair.getLeft().getSimpleName().toString();
         String proxyClassName = proxyClassNameMapper.map(classSimpleName);
-        source.append("    public static factories." + proxyClassName + " new" + classSimpleName + "() {\n");
-        source.append("        return new " + proxyClassName + "();\n");
-        source.append("    }\n");
+        String alias = elementAliasPair.getRight();
+        String factoryName = "new" + (alias.isEmpty()? classSimpleName : alias);
+
+        StringBuilder source = new StringBuilder();
+        source.append("    public static factory." + proxyClassName + " " + factoryName + "() {\n");
+        source.append("        return factory.Instantiator.createProxy(" + proxyClassName + ".class, \"" + alias + "\");\n");
+        source.append("    }\n\n");
         return source.toString();
     }
 }

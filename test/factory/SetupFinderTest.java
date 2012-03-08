@@ -3,6 +3,7 @@ package factory;
 import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
 
 class ClassWithSetupDefined {
 
@@ -25,15 +26,31 @@ class ClassWithSetupDefinedSetup {
     }
 }
 
+@FactorySetup(value = ClassWithSetupDefined.class, alias = "AliasClass")
+class ClassWithSetupDefinedSetupAlias {
+
+    public int capacity() {
+        return 50;
+    }
+}
+
 public class SetupFinderTest {
+
+    private SetupFinder setupFinder = new SetupFinder();
 
     @Test
     public void shouldFindSetupForClassWithSetupDefined() {
-        assertEquals(ClassWithSetupDefinedSetup.class, new SetupFinder().setupClassFor(ClassWithSetupDefined.class));
+        setupFinder = new SetupFinder();
+        assertEquals(ClassWithSetupDefinedSetup.class, setupFinder.setupClassFor(ClassWithSetupDefined.class));
     }
 
     @Test
     public void shouldReturnNullForClassWithoutSetupDefined() {
-        assertEquals(null, new SetupFinder().setupClassFor(ClassWithoutSetupDefined.class));
+        assertEquals(null, setupFinder.setupClassFor(ClassWithoutSetupDefined.class));
+    }
+
+    @Test
+    public void shouldFindAliasSetupForClassWithSetupDefined() {
+        assertEquals(ClassWithSetupDefinedSetupAlias.class, setupFinder.setupClassFor(ClassWithSetupDefined.class, "AliasClass"));
     }
 }

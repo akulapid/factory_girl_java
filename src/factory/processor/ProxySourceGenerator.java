@@ -1,6 +1,7 @@
 package factory.processor;
 
 import factory.ProxyClassNameMapper;
+import factory.__FactorySetupForProxy;
 
 import javax.annotation.processing.Filer;
 import javax.lang.model.element.Element;
@@ -24,7 +25,7 @@ public class ProxySourceGenerator {
     void writeSource(TypeElement element) {
         try {
             String proxyClassName = proxyClassNameMapper.map(getCanonicalName(element));
-            OutputStream os = filer.createSourceFile("factories." + proxyClassName).openOutputStream();
+            OutputStream os = filer.createSourceFile("factory." + proxyClassName).openOutputStream();
             PrintWriter pw = new PrintWriter(os);
             pw.print(getSource(element, proxyClassName));
             pw.close();
@@ -41,14 +42,23 @@ public class ProxySourceGenerator {
 
     String getSource(TypeElement classElement, String proxyClassName) throws Exception {
         StringBuilder source = new StringBuilder();
-        source.append("package factories;\n\n");
+        source.append("package factory;\n\n");
         String className = classElement.getQualifiedName().toString();
         source.append("public class " + proxyClassName + " extends " + className + " {\n\n");
         for (ExecutableElement setterElement : getSetterMethodElements(classElement)) {
             source.append(getProxySetterSource(setterElement, proxyClassName));
         }
         source.append(getBuilderSource(className));
-        source.append("}");
+        source.append("}\n\n");
+        source.append(getFactorySetupSource(proxyClassName));
+        return source.toString();
+    }
+
+    private String getFactorySetupSource(String proxyClassName) {
+        StringBuilder source = new StringBuilder();
+        source.append("@" + __FactorySetupForProxy.class.getCanonicalName() + "(" + proxyClassName +  ".class)\n");
+        source.append("class " + proxyClassName + "_Setup {\n");
+        source.append("}\n");
         return source.toString();
     }
 

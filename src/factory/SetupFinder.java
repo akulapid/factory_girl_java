@@ -3,13 +3,16 @@ package factory;
 import com.impetus.annovention.ClasspathDiscoverer;
 import com.impetus.annovention.Discoverer;
 import com.impetus.annovention.listener.ClassAnnotationDiscoveryListener;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 
+import java.lang.annotation.Annotation;
 import java.util.HashMap;
 import java.util.Map;
 
 public class SetupFinder {
 
-    private Map<Class, Class> factorySetups = new HashMap<Class, Class>();
+    private Map<Pair<Class, String>, Class> factorySetups = new HashMap<Pair<Class, String>, Class>();
 
     public SetupFinder() {
         Discoverer discoverer = new ClasspathDiscoverer();
@@ -18,20 +21,32 @@ public class SetupFinder {
     }
 
     public Class setupClassFor(Class clazz) {
-        return factorySetups.get(clazz);
+        return setupClassFor(clazz, null);
+    }
+
+    public Class setupClassFor(Class clazz, String alias) {
+        if (alias == null)
+            alias = "";
+        return factorySetups.get(new ImmutablePair<Class, String>(clazz, alias));
     }
 
     public class FactorySetupAnnotationListener implements ClassAnnotationDiscoveryListener {
 
         public String[] supportedAnnotations() {
-            return new String[]{FactorySetup.class.getName()};
+            return new String[] {
+                FactorySetup.class.getName()
+            };
         }
 
-        public void discovered(String clazz, String annotation) {
+        public void discovered(String clazz, String annotationName) {
             try {
                 Class factorySetupClass = Class.forName(clazz);
-                FactorySetup factorySetup = (FactorySetup) factorySetupClass.getAnnotation(FactorySetup.class);
-                factorySetups.put(factorySetup.value(), factorySetupClass);
+                Annotation annotation = factorySetupClass.getAnnotation(Class.forName(annotationName));
+                if (annotation instanceof FactorySetup) {
+                    FactorySetup factorySetup = (FactorySetup) annotation;
+                    Pair<Class, String> key = new ImmutablePair<Class, String>(factorySetup.value(), factorySetup.alias());
+                    factorySetups.put(key, factorySetupClass);
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }

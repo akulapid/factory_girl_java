@@ -2,6 +2,8 @@ package factory.processor;
 
 import factory.FactorySetup;
 import factory.ProxyClassNameMapper;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
@@ -21,7 +23,7 @@ public class FactorySetupProcessor extends AbstractProcessor {
     private FactoriesSourceGenerator factoriesSourceGenerator;
     private ProxySourceGenerator proxySourceGenerator;
 
-    private List<TypeElement> elements = new ArrayList<TypeElement>();
+    private List<Pair<TypeElement, String>> elements = new ArrayList<Pair<TypeElement, String>>();
 
     @Override
     public void init(ProcessingEnvironment processingEnvironment) {
@@ -39,7 +41,9 @@ public class FactorySetupProcessor extends AbstractProcessor {
             for (Element factorySetupElement : roundEnvironment.getElementsAnnotatedWith(annotationElement)) {
                 if (factorySetupElement instanceof TypeElement) {
                     TypeElement element = getFactorySetupType(factorySetupElement);
-                    elements.add(element);
+                    elements.add(new ImmutablePair<TypeElement, String>(
+                        element, factorySetupElement.getAnnotation(FactorySetup.class).alias()
+                    ));
                     proxySourceGenerator.writeSource(element);
                 }
             }

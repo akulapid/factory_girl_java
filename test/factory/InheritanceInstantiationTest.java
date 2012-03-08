@@ -2,6 +2,7 @@ package factory;
 
 import org.junit.Test;
 
+import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 
 class Vehicle {
@@ -49,6 +50,18 @@ class MotorSetup {
 
 @FactorySetup(Chassis.class)
 class ChassisSetup {
+}
+
+class SuperClassWithSetup {
+    int value;
+
+    public int getValue() {
+        return value;
+    }
+
+    public void setValue(int value) {
+        this.value = value;
+    }
 }
 
 public class InheritanceInstantiationTest {

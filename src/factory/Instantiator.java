@@ -16,10 +16,18 @@ public class Instantiator {
     private static SetupFinder setupFinder = new SetupFinder();
 
     public static <T> T create(Class<T> clazz) {
+        return create(clazz, null);
+    }
+
+    public static <T> T create(Class<T> clazz, String alias) {
         try {
-            T object = instantiate(clazz);
+            Class setupClass = setupFinder.setupClassFor(clazz, alias);
+            if (setupClass == null)
+                throw new SetupNotDefinedException(format("No FactorySetup found for %s", clazz.getName()));
+
+            T object = instantiate(clazz, setupClass);
             instantiateFields(object, clazz);
-            setup(object);
+            setup(object, setupClass);
             return object;
         } catch (InstantiationException e) {
             throw new FactoryInstantiationException(e);
@@ -31,14 +39,25 @@ public class Instantiator {
         return null;
     }
 
-    private static <T> T instantiate(Class<T> clazz) throws InstantiationException, IllegalAccessException, InvocationTargetException {
-        Class setupClazz = setupFinder.setupClassFor(clazz);
-        if (setupClazz == null)
-            throw new SetupNotDefinedException(format("No FactorySetup found for %s", clazz.getName()));
-        Method factoryConstructorMethod = getFactoryConstructorMethod(setupClazz);
+    public static <T> T createProxy(Class<T> proxyClass, String actualAlias) {
+        try {
+            Class setupClass = setupFinder.setupClassFor(proxyClass.getSuperclass(), actualAlias);
+            T proxy = proxyClass.newInstance();
+            setup(proxy, setupClass);
+            return proxy;
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private static <T> T instantiate(Class<T> clazz, Class setupClass) throws InstantiationException, IllegalAccessException, InvocationTargetException {
+        Method factoryConstructorMethod = getFactoryConstructorMethod(setupClass);
         if (factoryConstructorMethod == null)
             return clazz.newInstance();
-        return (T) factoryConstructorMethod.invoke(setupClazz.newInstance());
+        return (T) factoryConstructorMethod.invoke(setupClass.newInstance());
     }
 
     private static Method getFactoryConstructorMethod(Class setupClazz) {
@@ -49,13 +68,10 @@ public class Instantiator {
         }
     }
 
-    private static <T> void setup(T object) throws FactorySetupException {
-        Class setupClazz = setupFinder.setupClassFor(object.getClass());
-        if (setupClazz == null)
-            return;
+    private static <T> void setup(T object, Class setupClass) throws FactorySetupException {
         try {
-            Object setup = setupClazz.newInstance();
-            List<Method> applicableSetters = getApplicableSetters(setupClazz);
+            Object setup = setupClass.newInstance();
+            List<Method> applicableSetters = getApplicableSetters(setupClass);
             assertMethodsSignature(applicableSetters);
             for (Method method : applicableSetters) {
                 Method targetMethod = object.getClass().getMethod(getTargetMethodNameFor(method.getName()), method.getReturnType());
@@ -98,12 +114,11 @@ public class Instantiator {
     private static <T> void instantiateThisFields(Class<T> clazz, T object) throws InstantiationException, IllegalAccessException {
         Field[] fields = clazz.getDeclaredFields();
         for (Field field : fields) {
+            field.setAccessible(true);
             if (field.getType().equals(String.class))
                 field.set(object, new String(""));
-            else if (!field.getType().isPrimitive() && !field.getType().isArray() && !field.getType().isEnum() && !field.getType().isInterface()) {
-                field.setAccessible(true);
+            else if (!field.getType().isPrimitive() && !field.getType().isArray() && !field.getType().isEnum() && !field.getType().isInterface())
                 field.set(object, create(field.getType()));
-            }
         }
     }
 

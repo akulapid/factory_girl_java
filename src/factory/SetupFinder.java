@@ -10,6 +10,8 @@ import java.lang.annotation.Annotation;
 import java.util.HashMap;
 import java.util.Map;
 
+import static java.lang.String.format;
+
 public class SetupFinder {
 
     private Map<String, Class> factorySetups = new HashMap<String, Class>();
@@ -38,15 +40,17 @@ public class SetupFinder {
             };
         }
 
-        public void discovered(String clazz, String annotationName) {
+        public void discovered(String setupClass, String annotationName) {
             try {
-                Class factorySetupClass = Class.forName(clazz);
+                Class factorySetupClass = Class.forName(setupClass);
                 Annotation annotation = factorySetupClass.getAnnotation(Class.forName(annotationName));
                 if (annotation instanceof FactorySetup) {
                     FactorySetup factorySetup = (FactorySetup) annotation;
                     String key = factorySetup.name();
                     if (key.isEmpty())
                         key = factorySetup.value().getSimpleName();
+                    if (factorySetups.containsKey(key))
+                        throw new DuplicateSetupException(format("Duplicate setup names between (%s) and (%s)", factorySetupClass.getCanonicalName(), factorySetups.get(key).getCanonicalName()));
                     factorySetups.put(key, factorySetupClass);
                 }
             } catch (Exception e) {

@@ -9,5 +9,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface __FactorySetupForProxy {
     Class value();
-    String actualAlias() default "";
+    String factory() default "";
 }

@@ -9,5 +9,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface FactorySetup {
     Class value();
-    String alias() default "";
+    String name() default "";
 }

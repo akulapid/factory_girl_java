@@ -35,21 +35,21 @@ public class FactoriesSourceGenerator {
         StringBuilder source = new StringBuilder();
         source.append("package factory;\n\n");
         source.append("public class Factory {\n\n");
-        for (Pair<TypeElement, String> elementAliasPair : elements)
-            source.append(getFactorySource(elementAliasPair));
+        for (Pair<TypeElement, String> elementSetupPair : elements)
+            source.append(getFactorySource(elementSetupPair));
         source.append("}");
         return source.toString();
     }
 
-    String getFactorySource(Pair<TypeElement, String> elementAliasPair) {
-        String classSimpleName = elementAliasPair.getLeft().getSimpleName().toString();
+    String getFactorySource(Pair<TypeElement, String> elementSetupPair) {
+        String classSimpleName = elementSetupPair.getLeft().getSimpleName().toString();
         String proxyClassName = proxyClassNameMapper.map(classSimpleName);
-        String alias = elementAliasPair.getRight();
-        String factoryName = "new" + (alias.isEmpty()? classSimpleName : alias);
+        String setupName = elementSetupPair.getRight();
+        String factoryName = "new" + (setupName.isEmpty()? classSimpleName : setupName);
 
         StringBuilder source = new StringBuilder();
         source.append("    public static factory." + proxyClassName + " " + factoryName + "() {\n");
-        source.append("        return factory.Instantiator.createProxy(" + proxyClassName + ".class, \"" + alias + "\");\n");
+        source.append("        return factory.Instantiator.createProxy(" + proxyClassName + ".class, \"" + setupName + "\");\n");
         source.append("    }\n\n");
         return source.toString();
     }

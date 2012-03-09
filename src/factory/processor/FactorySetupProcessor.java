@@ -42,7 +42,7 @@ public class FactorySetupProcessor extends AbstractProcessor {
                 if (factorySetupElement instanceof TypeElement) {
                     TypeElement element = getFactorySetupType(factorySetupElement);
                     elements.add(new ImmutablePair<TypeElement, String>(
-                        element, factorySetupElement.getAnnotation(FactorySetup.class).alias()
+                        element, factorySetupElement.getAnnotation(FactorySetup.class).name()
                     ));
                     proxySourceGenerator.writeSource(element);
                 }

@@ -26,7 +26,7 @@ class ClassWithSetupDefinedSetup {
     }
 }
 
-@FactorySetup(value = ClassWithSetupDefined.class, alias = "AliasClass")
+@FactorySetup(value = ClassWithSetupDefined.class, name = "AliasClass")
 class ClassWithSetupDefinedSetupAlias {
 
     public int capacity() {
@@ -40,7 +40,6 @@ public class SetupFinderTest {
 
     @Test
     public void shouldFindSetupForClassWithSetupDefined() {
-        setupFinder = new SetupFinder();
         assertEquals(ClassWithSetupDefinedSetup.class, setupFinder.setupClassFor(ClassWithSetupDefined.class));
     }
 
@@ -50,7 +49,7 @@ public class SetupFinderTest {
     }
 
     @Test
-    public void shouldFindAliasSetupForClassWithSetupDefined() {
+    public void shouldFindAliasSetupForClassWithMultipleSetupsDefined() {
         assertEquals(ClassWithSetupDefinedSetupAlias.class, setupFinder.setupClassFor(ClassWithSetupDefined.class, "AliasClass"));
     }
 }

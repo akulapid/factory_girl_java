@@ -12,7 +12,7 @@ import java.util.Map;
 
 public class SetupFinder {
 
-    private Map<Pair<Class, String>, Class> factorySetups = new HashMap<Pair<Class, String>, Class>();
+    private Map<String, Class> factorySetups = new HashMap<String, Class>();
 
     public SetupFinder() {
         Discoverer discoverer = new ClasspathDiscoverer();
@@ -24,10 +24,10 @@ public class SetupFinder {
         return setupClassFor(clazz, null);
     }
 
-    public Class setupClassFor(Class clazz, String alias) {
-        if (alias == null)
-            alias = "";
-        return factorySetups.get(new ImmutablePair<Class, String>(clazz, alias));
+    public Class setupClassFor(Class clazz, String setupName) {
+        if (setupName == null || setupName.isEmpty())
+            setupName = clazz.getSimpleName();
+        return factorySetups.get(setupName);
     }
 
     public class FactorySetupAnnotationListener implements ClassAnnotationDiscoveryListener {
@@ -44,7 +44,9 @@ public class SetupFinder {
                 Annotation annotation = factorySetupClass.getAnnotation(Class.forName(annotationName));
                 if (annotation instanceof FactorySetup) {
                     FactorySetup factorySetup = (FactorySetup) annotation;
-                    Pair<Class, String> key = new ImmutablePair<Class, String>(factorySetup.value(), factorySetup.alias());
+                    String key = factorySetup.name();
+                    if (key.isEmpty())
+                        key = factorySetup.value().getSimpleName();
                     factorySetups.put(key, factorySetupClass);
                 }
             } catch (Exception e) {

@@ -19,9 +19,9 @@ public class Instantiator {
         return create(clazz, null);
     }
 
-    public static <T> T create(Class<T> clazz, String alias) {
+    public static <T> T create(Class<T> clazz, String setupName) {
         try {
-            Class setupClass = setupFinder.setupClassFor(clazz, alias);
+            Class setupClass = setupFinder.setupClassFor(clazz, setupName);
             if (setupClass == null)
                 throw new SetupNotDefinedException(format("No FactorySetup found for %s", clazz.getName()));
 
@@ -39,9 +39,9 @@ public class Instantiator {
         return null;
     }
 
-    public static <T> T createProxy(Class<T> proxyClass, String actualAlias) {
+    public static <T> T createProxy(Class<T> proxyClass, String setupName) {
         try {
-            Class setupClass = setupFinder.setupClassFor(proxyClass.getSuperclass(), actualAlias);
+            Class setupClass = setupFinder.setupClassFor(proxyClass.getSuperclass(), setupName);
             T proxy = proxyClass.newInstance();
             setup(proxy, setupClass);
             return proxy;

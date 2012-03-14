@@ -6,7 +6,12 @@ import org.junit.Test;
 import static junit.framework.Assert.assertEquals;
 
 @FactoryPersistent
-class DealPersistent implements FactoryPersistenceHandler {
+class DealPersistent extends FactoryPersistenceHandler {
+
+    public DealPersistent(String resourceName) {
+        super(resourceName);
+    }
+
     public void built(Object object) {
     }
 }

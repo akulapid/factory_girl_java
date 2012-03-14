@@ -1,5 +1,7 @@
 package factory.processor;
 
+import factory.FactoryPersistenceHandler;
+import factory.PersistenceHandlerMissingException;
 import factory.ProxyClassNameMapper;
 import factory.__FactorySetupForProxy;
 
@@ -43,14 +45,26 @@ public class ProxySourceGenerator {
     String getSource(TypeElement classElement, String proxyClassName) throws Exception {
         StringBuilder source = new StringBuilder();
         source.append("package factory;\n\n");
+
         String className = classElement.getQualifiedName().toString();
         source.append("public class " + proxyClassName + " extends " + className + " {\n\n");
+
+        source.append("    private " + FactoryPersistenceHandler.class.getCanonicalName() + " persistenceHandler;\n\n");
+
+        source.append(getConstructorSource(proxyClassName));
+        source.append("\n");
+
         for (ExecutableElement setterElement : getSetterMethodElements(classElement)) {
             source.append(getProxySetterSource(setterElement, proxyClassName));
         }
         source.append(getBuilderSource(className));
+        source.append("\n");
+
+        source.append(getCreateSource(className));
         source.append("}\n\n");
+
         source.append(getFactorySetupSource(proxyClassName));
+
         return source.toString();
     }
 
@@ -62,10 +76,30 @@ public class ProxySourceGenerator {
         return source.toString();
     }
 
+    String getConstructorSource(String proxyClassName) {
+        StringBuilder source = new StringBuilder();
+        source.append("    public " + proxyClassName + "(" + FactoryPersistenceHandler.class.getCanonicalName() + " persistenceHandler) {\n");
+        source.append("        this.persistenceHandler = persistenceHandler;\n");
+        source.append("    }\n");
+        return source.toString();
+    }
+
     String getBuilderSource(String className) {
         StringBuilder source = new StringBuilder();
         source.append("    public " + className + " build() {\n");
         source.append("        return (" + className + ") this;\n");
+        source.append("    }\n");
+        return source.toString();
+    }
+
+    String getCreateSource(String className) {
+        StringBuilder source = new StringBuilder();
+        source.append("    public " + className + " create() {\n");
+        source.append("        " + className + " object = build();\n" );
+        source.append("        if (persistenceHandler == null)\n");
+        source.append("            throw new " + PersistenceHandlerMissingException.class.getCanonicalName() + "(\"No persistence handlers found.\");\n");
+        source.append("        persistenceHandler.built(object);\n");
+        source.append("        return object;\n");
         source.append("    }\n");
         return source.toString();
     }

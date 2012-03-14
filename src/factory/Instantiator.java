@@ -3,10 +3,7 @@ package factory;
 import factory.annotations.Annotations;
 import org.apache.commons.lang3.text.WordUtils;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
+import java.lang.reflect.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,12 +40,17 @@ public class Instantiator {
     public static <T> T createProxy(Class<T> proxyClass, String setupName) {
         try {
             Class setupClass = annotations.setupClassFor(proxyClass.getSuperclass(), setupName);
-            T proxy = proxyClass.newInstance();
+            Constructor<T> proxyConstructor = proxyClass.getConstructor(FactoryPersistenceHandler.class);
+            T proxy = proxyConstructor.newInstance(annotations.persistentClass().newInstance());
             setup(proxy, setupClass);
             return proxy;
         } catch (InstantiationException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
             e.printStackTrace();
         }
         return null;

@@ -32,6 +32,8 @@ class ActualSetupAsAlias {
 }
 
 class Proxy extends Actual {
+    public Proxy(FactoryPersistenceHandler persistenceHandler) {
+    }
 }
 
 @__FactorySetupForProxy(value = Proxy.class, factory = "")
@@ -46,4 +48,3 @@ public class ProxyInstantiationTest {
         assertEquals(10, Instantiator.createProxy(Proxy.class, "Alias").getX());
     }
 }
-

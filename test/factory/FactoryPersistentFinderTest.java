@@ -6,7 +6,9 @@ import org.junit.Test;
 import static junit.framework.Assert.assertEquals;
 
 @FactoryPersistent
-class DealPersistent {
+class DealPersistent implements FactoryPersistenceHandler {
+    public void built(Object object) {
+    }
 }
 
 public class FactoryPersistentFinderTest {

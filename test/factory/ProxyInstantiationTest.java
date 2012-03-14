@@ -32,7 +32,7 @@ class ActualSetupAsAlias {
 }
 
 class Proxy extends Actual {
-    public Proxy(FactoryPersistenceHandler persistenceHandler) {
+    public Proxy(AbstractPersistenceHandler persistenceHandler) {
     }
 }
 

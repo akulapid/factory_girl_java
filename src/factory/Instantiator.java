@@ -39,10 +39,10 @@ public class Instantiator {
 
     public static <T> T createProxy(Class<T> proxyClass, String setupName) {
         try {
-            Constructor<FactoryPersistenceHandler> persistenceHandlerConstructor = annotations.persistentClass().getConstructor(String.class);
-            FactoryPersistenceHandler persistentHandler = persistenceHandlerConstructor.newInstance("");
+            Constructor<AbstractPersistenceHandler> persistenceHandlerConstructor = annotations.persistentClass().getConstructor(String.class);
+            AbstractPersistenceHandler persistentHandler = persistenceHandlerConstructor.newInstance("");
 
-            Constructor<T> proxyConstructor = proxyClass.getConstructor(FactoryPersistenceHandler.class);
+            Constructor<T> proxyConstructor = proxyClass.getConstructor(AbstractPersistenceHandler.class);
             T proxy = proxyConstructor.newInstance(persistentHandler);
 
             Class setupClass = annotations.setupClassFor(proxyClass.getSuperclass(), setupName);

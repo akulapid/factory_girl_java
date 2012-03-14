@@ -1,6 +1,6 @@
 package factory.processor;
 
-import factory.FactoryPersistenceHandler;
+import factory.AbstractPersistenceHandler;
 import factory.PersistenceHandlerMissingException;
 import factory.ProxyClassNameMapper;
 import factory.__FactorySetupForProxy;
@@ -49,7 +49,7 @@ public class ProxySourceGenerator {
         String className = classElement.getQualifiedName().toString();
         source.append("public class " + proxyClassName + " extends " + className + " {\n\n");
 
-        source.append("    private " + FactoryPersistenceHandler.class.getCanonicalName() + " persistenceHandler;\n\n");
+        source.append("    private " + AbstractPersistenceHandler.class.getCanonicalName() + " persistenceHandler;\n\n");
 
         source.append(getConstructorSource(proxyClassName));
         source.append("\n");
@@ -78,7 +78,7 @@ public class ProxySourceGenerator {
 
     String getConstructorSource(String proxyClassName) {
         StringBuilder source = new StringBuilder();
-        source.append("    public " + proxyClassName + "(" + FactoryPersistenceHandler.class.getCanonicalName() + " persistenceHandler) {\n");
+        source.append("    public " + proxyClassName + "(" + AbstractPersistenceHandler.class.getCanonicalName() + " persistenceHandler) {\n");
         source.append("        this.persistenceHandler = persistenceHandler;\n");
         source.append("    }\n");
         return source.toString();

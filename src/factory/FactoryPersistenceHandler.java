@@ -1,12 +1,11 @@
 package factory;
 
-public abstract class FactoryPersistenceHandler {
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-    private String resourceName;
-
-    public FactoryPersistenceHandler(String resourceName) {
-        this.resourceName = resourceName;
-    }
-
-    public abstract void built(Object object);
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface FactoryPersistenceHandler {
 }

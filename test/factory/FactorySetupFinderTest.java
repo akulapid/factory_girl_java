@@ -1,5 +1,6 @@
 package factory;
 
+import factory.annotations.Annotations;
 import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;
@@ -34,22 +35,22 @@ class ClassWithSetupDefinedSetupAlias {
     }
 }
 
-public class SetupFinderTest {
+public class FactorySetupFinderTest {
 
-    private SetupFinder setupFinder = new SetupFinder();
+    private Annotations annotations = new Annotations();
 
     @Test
     public void shouldFindSetupForClassWithSetupDefined() {
-        assertEquals(ClassWithSetupDefinedSetup.class, setupFinder.setupClassFor(ClassWithSetupDefined.class));
+        assertEquals(ClassWithSetupDefinedSetup.class, annotations.setupClassFor(ClassWithSetupDefined.class));
     }
 
     @Test
     public void shouldReturnNullForClassWithoutSetupDefined() {
-        assertEquals(null, setupFinder.setupClassFor(ClassWithoutSetupDefined.class));
+        assertEquals(null, annotations.setupClassFor(ClassWithoutSetupDefined.class));
     }
 
     @Test
     public void shouldFindAliasSetupForClassWithMultipleSetupsDefined() {
-        assertEquals(ClassWithSetupDefinedSetupAlias.class, setupFinder.setupClassFor(ClassWithSetupDefined.class, "AliasClass"));
+        assertEquals(ClassWithSetupDefinedSetupAlias.class, annotations.setupClassFor(ClassWithSetupDefined.class, "AliasClass"));
     }
 }

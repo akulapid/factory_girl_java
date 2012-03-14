@@ -1,5 +1,6 @@
 package factory;
 
+import factory.annotations.Annotations;
 import org.apache.commons.lang3.text.WordUtils;
 
 import java.lang.reflect.Field;
@@ -13,7 +14,7 @@ import static java.lang.String.format;
 
 public class Instantiator {
 
-    private static SetupFinder setupFinder = new SetupFinder();
+    private static Annotations annotations = new Annotations();
 
     public static <T> T create(Class<T> clazz) {
         return create(clazz, null);
@@ -21,7 +22,7 @@ public class Instantiator {
 
     public static <T> T create(Class<T> clazz, String setupName) {
         try {
-            Class setupClass = setupFinder.setupClassFor(clazz, setupName);
+            Class setupClass = annotations.setupClassFor(clazz, setupName);
             if (setupClass == null)
                 throw new SetupNotDefinedException(format("No FactorySetup found for %s", clazz.getName()));
 
@@ -41,7 +42,7 @@ public class Instantiator {
 
     public static <T> T createProxy(Class<T> proxyClass, String setupName) {
         try {
-            Class setupClass = setupFinder.setupClassFor(proxyClass.getSuperclass(), setupName);
+            Class setupClass = annotations.setupClassFor(proxyClass.getSuperclass(), setupName);
             T proxy = proxyClass.newInstance();
             setup(proxy, setupClass);
             return proxy;

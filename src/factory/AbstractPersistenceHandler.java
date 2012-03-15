@@ -2,10 +2,10 @@ package factory;
 
 public abstract class AbstractPersistenceHandler {
 
-    private String resourceName;
+    protected String databaseName;
 
-    public AbstractPersistenceHandler(String resourceName) {
-        this.resourceName = resourceName;
+    public AbstractPersistenceHandler(String databaseName) {
+        this.databaseName = databaseName;
     }
 
     public abstract void built(Object object);

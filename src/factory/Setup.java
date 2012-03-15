@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface FactorySetup {
+public @interface Setup {
     Class value();
     String name() default "";
 }

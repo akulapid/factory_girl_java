@@ -17,14 +17,14 @@ class Actual {
     }
 }
 
-@FactorySetup(value = Actual.class)
+@Setup(value = Actual.class)
 class ActualSetup {
     public int x() {
         return 5;
     }
 }
 
-@FactorySetup(value = Actual.class, name = "Alias")
+@Setup(value = Actual.class, name = "Alias")
 class ActualSetupAsAlias {
     public int x() {
         return 10;
@@ -36,7 +36,7 @@ class Proxy extends Actual {
     }
 }
 
-@__FactorySetupForProxy(value = Proxy.class, factory = "")
+@__SetupForProxy(value = Proxy.class, factory = "")
 class ProxySetup {
 }
 

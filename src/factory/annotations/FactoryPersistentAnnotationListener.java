@@ -2,7 +2,7 @@ package factory.annotations;
 
 import com.impetus.annovention.listener.ClassAnnotationDiscoveryListener;
 import factory.DuplicatePersistentException;
-import factory.FactoryPersistenceHandler;
+import factory.PersistenceHandler;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -18,16 +18,16 @@ public class FactoryPersistentAnnotationListener implements ClassAnnotationDisco
 
     public String[] supportedAnnotations() {
         return new String[] {
-            FactoryPersistenceHandler.class.getName()
+            PersistenceHandler.class.getName()
         };
     }
 
     public void discovered(String persistentClass, String annotationName) {
         try {
             Class factoryPersistentClass = Class.forName(persistentClass);
-            FactoryPersistenceHandler factoryPersistenceHandlerAnnotation = (FactoryPersistenceHandler) factoryPersistentClass.getAnnotation(Class.forName(annotationName));
+            PersistenceHandler persistenceHandlerAnnotation = (PersistenceHandler) factoryPersistentClass.getAnnotation(Class.forName(annotationName));
             if (factoryPersistent.get() != null)
-                throw new DuplicatePersistentException(format("Duplicate persistent listeners between (%s) and (%s). There can be only one defined.", factoryPersistentClass.getCanonicalName(), factoryPersistenceHandlerAnnotation.annotationType().getCanonicalName()));
+                throw new DuplicatePersistentException(format("Duplicate persistent listeners between (%s) and (%s). There can be only one defined.", factoryPersistentClass.getCanonicalName(), persistenceHandlerAnnotation.annotationType().getCanonicalName()));
             factoryPersistent.set(factoryPersistentClass);
         } catch (Exception e) {
             e.printStackTrace();

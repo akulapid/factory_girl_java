@@ -40,8 +40,8 @@ public class Instantiator {
     public static <T> T createProxy(Class<T> proxyClass, String setupName) {
         try {
             Class setupClass = annotations.setupClassFor(proxyClass.getSuperclass(), setupName);
-            FactoryPersistent factoryPersistent = (FactoryPersistent) setupClass.getAnnotation(FactoryPersistent.class);
-            String databaseName = factoryPersistent != null? factoryPersistent.databaseName() : null;
+            Persistent persistent = (Persistent) setupClass.getAnnotation(Persistent.class);
+            String databaseName = persistent != null? persistent.databaseName() : null;
 
             Constructor<AbstractPersistenceHandler> persistenceHandlerConstructor = annotations.persistentClass().getConstructor(String.class);
             AbstractPersistenceHandler persistentHandler = persistenceHandlerConstructor.newInstance(databaseName);

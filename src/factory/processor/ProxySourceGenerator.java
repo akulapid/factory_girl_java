@@ -3,7 +3,7 @@ package factory.processor;
 import factory.AbstractPersistenceHandler;
 import factory.PersistenceHandlerMissingException;
 import factory.ProxyClassNameMapper;
-import factory.__FactorySetupForProxy;
+import factory.__SetupForProxy;
 
 import javax.annotation.processing.Filer;
 import javax.lang.model.element.Element;
@@ -70,7 +70,7 @@ public class ProxySourceGenerator {
 
     private String getFactorySetupSource(String proxyClassName) {
         StringBuilder source = new StringBuilder();
-        source.append("@" + __FactorySetupForProxy.class.getCanonicalName() + "(" + proxyClassName +  ".class)\n");
+        source.append("@" + __SetupForProxy.class.getCanonicalName() + "(" + proxyClassName +  ".class)\n");
         source.append("class " + proxyClassName + "_Setup {\n");
         source.append("}\n");
         return source.toString();

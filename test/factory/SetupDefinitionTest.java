@@ -8,7 +8,7 @@ class Stub {
 class ClassWithInvalidSetupDefinition {
 }
 
-@FactorySetup(Stub.class)
+@Setup(Stub.class)
 class StubSetup {
 
     public int foo(int bar) {
@@ -19,7 +19,7 @@ class StubSetup {
     }
 }
 
-@FactorySetup(ClassWithInvalidSetupDefinition.class)
+@Setup(ClassWithInvalidSetupDefinition.class)
 class ClassWithInvalidSetupDefinitionSetup {
 
     public int undefinedMethod() {

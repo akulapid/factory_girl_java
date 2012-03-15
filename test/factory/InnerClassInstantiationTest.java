@@ -4,7 +4,7 @@ import org.junit.Test;
 
 import static junit.framework.Assert.assertTrue;
 
-@FactorySetup(InnerClassInstantiationTest.SampleClass.class)
+@Setup(InnerClassInstantiationTest.SampleClass.class)
 class SampleClassSetup {
 }
 

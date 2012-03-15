@@ -7,6 +7,7 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface FactoryPersistent {
-    String databaseName() default "";
+public @interface __SetupForProxy {
+    Class value();
+    String factory() default "";
 }

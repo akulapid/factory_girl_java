@@ -25,15 +25,15 @@ class State {
 class District {
 }
 
-@FactorySetup(Country.class)
+@Setup(Country.class)
 class CountrySetup {
 }
 
-@FactorySetup(State.class)
+@Setup(State.class)
 class StateSetup {
 }
 
-@FactorySetup(District.class)
+@Setup(District.class)
 class DistrictSetup {
 }
 

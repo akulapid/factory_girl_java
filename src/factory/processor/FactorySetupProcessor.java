@@ -1,6 +1,6 @@
 package factory.processor;
 
-import factory.FactorySetup;
+import factory.Setup;
 import factory.ProxyClassNameMapper;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-@SupportedAnnotationTypes("factory.FactorySetup")
+@SupportedAnnotationTypes("factory.Setup")
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
 public class FactorySetupProcessor extends AbstractProcessor {
 
@@ -42,7 +42,7 @@ public class FactorySetupProcessor extends AbstractProcessor {
                 if (factorySetupElement instanceof TypeElement) {
                     TypeElement element = getFactorySetupType(factorySetupElement);
                     elements.add(new ImmutablePair<TypeElement, String>(
-                        element, factorySetupElement.getAnnotation(FactorySetup.class).name()
+                        element, factorySetupElement.getAnnotation(Setup.class).name()
                     ));
                     proxySourceGenerator.writeSource(element);
                 }
@@ -56,7 +56,7 @@ public class FactorySetupProcessor extends AbstractProcessor {
     // see http://blog.retep.org/2009/02/13/getting-class-values-from-annotations-in-an-annotationprocessor
     private TypeElement getFactorySetupType(Element factorySetupElement) {
         try {
-            factorySetupElement.getAnnotation(FactorySetup.class).value();
+            factorySetupElement.getAnnotation(Setup.class).value();
         } catch (MirroredTypeException e) {
             return (TypeElement) ((DeclaredType) e.getTypeMirror()).asElement();
         }

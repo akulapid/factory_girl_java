@@ -7,7 +7,5 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface __FactorySetupForProxy {
-    Class value();
-    String factory() default "";
+public @interface PersistenceHandler {
 }

@@ -1,4 +1,5 @@
 # handle exceptions and throw meaningful ones
+  . assoicate method signature
 
 #collections
 
@@ -9,3 +10,9 @@
 # how do you pick setup when there are multiple aliases? esp when it's a instatiated as a field
 
 # Generalize the callback mechanism currently used for persistence
+
+# BUG! @Persistent is mandatory when instantiating through proxy
+
+# BUG! createProxy should mirror create; and get rid of create
+
+# BUG! defining 2 default setups for a class does not throw an exception

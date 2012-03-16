@@ -1,25 +1,11 @@
-# instantiate using constructor; might need to rename defaults to setup or something
-@ConstructorArgs
-public Object[] someMethod(){
-    return new Object[]{1, 2, 3};
-}
-
-# nice syntax to set properties on objects - chaining and all
-
-Factory.create(Car.class, set(){
-            {"a.b.c", new B()}
-});
-
 # handle exceptions and throw meaningful ones
-
-#presets => with name and aliases
 
 #collections
 
-# how do you handle final classes?
-
 # can you handle template classes?
 
-# openjdk?
+# openjdk? - test factory against open jdk
 
 # how do you pick setup when there are multiple aliases? esp when it's a instatiated as a field
+
+# Generalize the callback mechanism currently used for persistence

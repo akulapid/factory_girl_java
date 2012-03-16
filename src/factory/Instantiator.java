@@ -5,6 +5,7 @@ import org.apache.commons.lang3.text.WordUtils;
 
 import java.lang.reflect.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import static java.lang.String.format;
@@ -14,17 +15,28 @@ public class Instantiator {
     private static Annotations annotations = new Annotations();
 
     public static <T> T create(Class<T> clazz) {
-        return create(clazz, null);
+        return create(clazz, null, null);
     }
 
     public static <T> T create(Class<T> clazz, String setupName) {
+        return create(clazz, setupName, null);
+    }
+
+    public static <T> T create(Class<T> clazz, ObjectContext context) {
+        return create(clazz, null, context);
+    }
+
+    public static <T> T create(Class<T> clazz, String setupName, ObjectContext context) {
+        if (context == null)
+            context = new ObjectContext();
         try {
             Class setupClass = annotations.setupClassFor(clazz, setupName);
             if (setupClass == null)
                 throw new SetupNotDefinedException(format("No FactorySetup found for %s", clazz.getName()));
 
             T object = instantiate(clazz, setupClass);
-            instantiateFields(object, clazz);
+            instantiateFields(object, clazz, context);
+            setupAssociations(object, setupClass, context);
             setup(object, setupClass);
             return object;
         } catch (InstantiationException e) {
@@ -46,9 +58,12 @@ public class Instantiator {
             Constructor<AbstractPersistenceHandler> persistenceHandlerConstructor = annotations.persistentClass().getConstructor(String.class);
             AbstractPersistenceHandler persistentHandler = persistenceHandlerConstructor.newInstance(databaseName);
 
-            Constructor<T> proxyConstructor = proxyClass.getConstructor(AbstractPersistenceHandler.class);
-            T proxy = proxyConstructor.newInstance(persistentHandler);
+            Constructor<T> proxyConstructor = proxyClass.getConstructor(AbstractPersistenceHandler.class, ObjectContext.class);
+            ObjectContext context = new ObjectContext();
+            T proxy = proxyConstructor.newInstance(persistentHandler, context);
 
+            instantiateFields(proxy, setupClass, context);
+            setupAssociations(proxy, setupClass, context);
             setup(proxy, setupClass);
             return proxy;
         } catch (InstantiationException e) {
@@ -76,6 +91,47 @@ public class Instantiator {
         } catch (NoSuchMethodException e) {
             return null;
         }
+    }
+
+    private static <T> void setupAssociations(T object, Class setupClass, ObjectContext context) {
+        try {
+            Object setup = setupClass.newInstance();
+            List<Method> associationMethods = getAssociationMethods(setupClass);
+            for (Method method : associationMethods) {
+                Class targetClass = method.getParameterTypes()[0];
+                Object associatedObject = Instantiator.create(targetClass, context);
+
+                Object associatedId = method.invoke(setup, associatedObject);
+
+                Method targetMethod = object.getClass().getMethod(getTargetMethodNameFor(method.getName()), method.getReturnType());
+                targetMethod.invoke(object, associatedId);
+
+                context.addDependency(format("%s-%s", getSetupNameFor(setupClass), method.getName()), associatedObject);
+            }
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static String getSetupNameFor(Class setupClass) {
+        Setup setup = ((Setup) setupClass.getAnnotation(Setup.class));
+        if (setup.name().isEmpty())
+            return setup.value().getSimpleName();
+        return setup.name();
+    }
+
+    private static List<Method> getAssociationMethods(Class setupClass) {
+        List<Method> associationMethods = new ArrayList<Method>();
+        for (Method method : setupClass.getDeclaredMethods())
+            if (Modifier.isPublic(method.getModifiers()) && method.isAnnotationPresent(Associate.class))
+                associationMethods.add(method);
+        return associationMethods;
     }
 
     private static <T> void setup(T object, Class setupClass) throws FactorySetupException {
@@ -109,38 +165,38 @@ public class Instantiator {
         }
     }
 
-    private static List<Method> getApplicableSetters(Class setupClazz) {
-        List<Method> publicMethods = new ArrayList<Method>();
-        for (Method method : setupClazz.getDeclaredMethods())
-            if (Modifier.isPublic(method.getModifiers()) && !method.getName().equals("constructor"))
-                publicMethods.add(method);
-        return publicMethods;
+    private static List<Method> getApplicableSetters(Class setupClass) {
+        List<Method> applicableSetters = new ArrayList<Method>();
+        for (Method method : setupClass.getDeclaredMethods())
+            if (Modifier.isPublic(method.getModifiers()) && !method.getName().equals("constructor") && !method.isAnnotationPresent(Associate.class))
+                applicableSetters.add(method);
+        return applicableSetters;
     }
 
     private static String getTargetMethodNameFor(String setupSetter) {
         return "set" + WordUtils.capitalize(setupSetter);
     }
 
-    private static <T> void instantiateThisFields(Class<T> clazz, T object) throws InstantiationException, IllegalAccessException {
+    private static <T> void instantiateThisFields(Class<T> clazz, T object, ObjectContext context) throws InstantiationException, IllegalAccessException {
         Field[] fields = clazz.getDeclaredFields();
         for (Field field : fields) {
             field.setAccessible(true);
             if (field.getType().equals(String.class))
                 field.set(object, new String(""));
             else if (!field.getType().isPrimitive() && !field.getType().isArray() && !field.getType().isEnum() && !field.getType().isInterface())
-                field.set(object, create(field.getType()));
+                field.set(object, create(field.getType(), context));
         }
     }
 
-    private static <T> void instantiateSuperFields(Class<T> clazz, T object) throws InstantiationException, IllegalAccessException {
+    private static <T> void instantiateSuperFields(Class<T> clazz, T object, ObjectContext context) throws InstantiationException, IllegalAccessException {
         if (clazz.getSuperclass() != null) {
             Class<? super T> superClazz = clazz.getSuperclass();
-            instantiateFields(object, superClazz);
+            instantiateFields(object, superClazz, context);
         }
     }
 
-    private static <T> void instantiateFields(T object, Class<? super T> clazz) throws InstantiationException, IllegalAccessException {
-        instantiateSuperFields(clazz, object);
-        instantiateThisFields(clazz, object);
+    private static <T> void instantiateFields(T object, Class<? super T> clazz, ObjectContext context) throws InstantiationException, IllegalAccessException {
+        instantiateSuperFields(clazz, object, context);
+        instantiateThisFields(clazz, object, context);
     }
 }

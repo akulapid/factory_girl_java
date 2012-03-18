@@ -23,7 +23,7 @@ class MotorVehicle extends Vehicle {
     }
 }
 
-class Car extends MotorVehicle{
+class Car extends MotorVehicle {
 }
 
 class Motor {
@@ -32,11 +32,11 @@ class Motor {
 class Chassis {
 }
 
-@Setup(VehicleSetup.class)
+@Setup(Vehicle.class)
 class VehicleSetup {
 }
 
-@Setup(MotorVehicleSetup.class)
+@Setup(MotorVehicle.class)
 class MotorVehicleSetup {
 }
 

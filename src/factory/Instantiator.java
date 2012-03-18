@@ -13,30 +13,6 @@ public class Instantiator {
 
     private static Annotations annotations = new Annotations();
 
-    public static <T> T create(Class<T> clazz) {
-        return create(clazz, null);
-    }
-
-    public static <T> T create(Class<T> clazz, String setupName) {
-        try {
-            Class setupClass = annotations.setupClassFor(clazz, setupName);
-            if (setupClass == null)
-                throw new SetupNotDefinedException(format("No FactorySetup found for %s", clazz.getName()));
-
-            T object = instantiate(clazz, setupClass);
-            instantiateFields(object, clazz);
-            setup(object, setupClass);
-            return object;
-        } catch (InstantiationException e) {
-            throw new FactoryInstantiationException(e);
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
     public static <T> T createProxy(Class<T> proxyClass, String setupName) {
         try {
             Class setupClass = annotations.setupClassFor(proxyClass.getSuperclass(), setupName);
@@ -48,8 +24,7 @@ public class Instantiator {
 
             Constructor<T> proxyConstructor = proxyClass.getConstructor(AbstractPersistenceHandler.class);
             T proxy = proxyConstructor.newInstance(persistentHandler);
-
-            setup(proxy, setupClass);
+            instantiateAndSetupFields(proxy, proxyClass.getSuperclass(), setupClass);
             return proxy;
         } catch (InstantiationException e) {
             e.printStackTrace();
@@ -63,11 +38,59 @@ public class Instantiator {
         return null;
     }
 
+    public static <T> T create(Class<T> clazz, String setupName) {
+        try {
+            Class setupClass = annotations.setupClassFor(clazz, setupName);
+            if (setupClass == null)
+                throw new SetupNotDefinedException(format("No FactorySetup found for %s", clazz.getName()));
+
+            T object = instantiate(clazz, setupClass);
+            instantiateAndSetupFields(object, clazz, setupClass);
+            return object;
+        } catch (InstantiationException e) {
+            throw new FactoryInstantiationException(e);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static <T> T create(Class<T> clazz) {
+        return create(clazz, null);
+    }
+
     private static <T> T instantiate(Class<T> clazz, Class setupClass) throws InstantiationException, IllegalAccessException, InvocationTargetException {
         Method factoryConstructorMethod = getFactoryConstructorMethod(setupClass);
         if (factoryConstructorMethod == null)
             return clazz.newInstance();
         return (T) factoryConstructorMethod.invoke(setupClass.newInstance());
+    }
+
+    private static <T> void instantiateAndSetupFields(T object, Class<? super T> clazz, Class setupClass) throws InstantiationException, IllegalAccessException {
+        instantiateSuperFields(clazz, object, setupClass);
+        instantiateThisFields(clazz, object);
+        setup(object, setupClass);
+    }
+
+    private static <T> void instantiateThisFields(Class<T> clazz, T object) throws InstantiationException, IllegalAccessException {
+        Field[] fields = clazz.getDeclaredFields();
+        for (Field field : fields) {
+            field.setAccessible(true);
+            if (field.getType().equals(String.class))
+                field.set(object, new String(""));
+            else if (!field.getType().isPrimitive() && !field.getType().isArray() && !field.getType().isEnum() && !field.getType().isInterface())
+                field.set(object, create(field.getType()));
+        }
+    }
+
+    private static <T> void instantiateSuperFields(Class<T> clazz, T object, Class setupClass) throws InstantiationException, IllegalAccessException {
+        if (clazz.getSuperclass() != null) {
+            Class<? super T> superClazz = clazz.getSuperclass();
+            if (superClazz != Object.class)
+                instantiateAndSetupFields(object, superClazz, annotations.setupClassFor(superClazz));
+        }
     }
 
     private static Method getFactoryConstructorMethod(Class setupClazz) {
@@ -119,28 +142,5 @@ public class Instantiator {
 
     private static String getTargetMethodNameFor(String setupSetter) {
         return "set" + WordUtils.capitalize(setupSetter);
-    }
-
-    private static <T> void instantiateThisFields(Class<T> clazz, T object) throws InstantiationException, IllegalAccessException {
-        Field[] fields = clazz.getDeclaredFields();
-        for (Field field : fields) {
-            field.setAccessible(true);
-            if (field.getType().equals(String.class))
-                field.set(object, new String(""));
-            else if (!field.getType().isPrimitive() && !field.getType().isArray() && !field.getType().isEnum() && !field.getType().isInterface())
-                field.set(object, create(field.getType()));
-        }
-    }
-
-    private static <T> void instantiateSuperFields(Class<T> clazz, T object) throws InstantiationException, IllegalAccessException {
-        if (clazz.getSuperclass() != null) {
-            Class<? super T> superClazz = clazz.getSuperclass();
-            instantiateFields(object, superClazz);
-        }
-    }
-
-    private static <T> void instantiateFields(T object, Class<? super T> clazz) throws InstantiationException, IllegalAccessException {
-        instantiateSuperFields(clazz, object);
-        instantiateThisFields(clazz, object);
     }
 }

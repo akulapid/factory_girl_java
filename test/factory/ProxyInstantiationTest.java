@@ -5,46 +5,107 @@ import org.junit.Test;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 
-class Actual {
-    int x;
+class Furniture {
+    String madeOf;
 
-    public int getX() {
-        return x;
+    public String getMadeOf() {
+        return madeOf;
     }
 
-    public void setX(int x) {
-        this.x = x;
-    }
-}
-
-@Setup(value = Actual.class)
-class ActualSetup {
-    public int x() {
-        return 5;
+    public void setMadeOf(String madeOf) {
+        this.madeOf = madeOf;
     }
 }
 
-@Setup(value = Actual.class, name = "Alias")
-class ActualSetupAsAlias {
-    public int x() {
-        return 10;
+class Drawer {
+    int capacity;
+
+    public int getCapacity() {
+        return capacity;
+    }
+
+    public void setCapacity(int capacity) {
+        this.capacity = capacity;
     }
 }
 
-class Proxy extends Actual {
-    public Proxy(AbstractPersistenceHandler persistenceHandler) {
+class Table extends Furniture {
+    String shape;
+    Drawer drawer;
+
+    public String getShape() {
+        return shape;
+    }
+
+    public void setShape(String shape) {
+        this.shape = shape;
+    }
+
+    public Drawer getDrawer() {
+        return drawer;
+    }
+
+    public void setDrawer(Drawer drawer) {
+        this.drawer = drawer;
     }
 }
 
-@__SetupForProxy(value = Proxy.class, factory = "")
-class ProxySetup {
+@Setup(Furniture.class)
+class FurnitureSetup {
+    public String madeOf() {
+        return "wood";
+    }
+}
+
+@Setup(Table.class)
+class TableSetup {
+    public String shape() {
+        return "rectangle";
+    }
+}
+
+@Setup(value = Table.class, name = "RoundTable")
+class RoundTable {
+    public String shape() {
+        return "circle";
+    }
+}
+
+@Setup(Drawer.class)
+class DrawerSetup {
+    public int capacity() {
+        return 2000;
+    }
+}
+
+class TableProxy extends Table {
+    public TableProxy(AbstractPersistenceHandler persistenceHandler) {
+    }
+}
+
+@__SetupForProxy(value = TableProxy.class, factory = "")
+class TableProxySetup {
 }
 
 public class ProxyInstantiationTest {
 
     @Test
-    public void shouldInstantiateProxyUsingActualClassSetup() {
-        assertEquals(5, Instantiator.createProxy(Proxy.class, "").getX());
-        assertEquals(10, Instantiator.createProxy(Proxy.class, "Alias").getX());
+    public void shouldInstantiateProxyAndSetupActualSuperFields() {
+        assertEquals("wood", Instantiator.createProxy(TableProxy.class, "").getMadeOf());
+    }
+
+    @Test
+    public void shouldInstantiateProxyAndSetupActualThisFields() {
+        assertEquals("rectangle", Instantiator.createProxy(TableProxy.class, "").getShape());
+    }
+
+    @Test
+    public void shouldInstantiateProxyAndSetupActualThisFieldsFromAlias() {
+        assertEquals("circle", Instantiator.createProxy(TableProxy.class, "RoundTable").getShape());
+    }
+
+    @Test
+    public void shouldInstantiateProxyAndInstantiateAndSetupThisFields() {
+        assertEquals(2000, Instantiator.createProxy(TableProxy.class, "RoundTable").getDrawer().getCapacity());
     }
 }

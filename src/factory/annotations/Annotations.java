@@ -35,4 +35,3 @@ public class Annotations {
         return factoryPersistent.get();
     }
 }
-

@@ -8,5 +8,5 @@ public abstract class AbstractPersistenceHandler {
         this.databaseName = databaseName;
     }
 
-    public abstract void built(Object object);
+    public abstract void persist(Object object);
 }

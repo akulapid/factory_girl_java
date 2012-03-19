@@ -12,7 +12,7 @@ class DealPersistent extends AbstractPersistenceHandler {
         super(resourceName);
     }
 
-    public void built(Object object) {
+    public void persist(Object object) {
     }
 }
 

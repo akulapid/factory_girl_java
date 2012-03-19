@@ -22,9 +22,11 @@ public class Instantiator {
             Constructor<AbstractPersistenceHandler> persistenceHandlerConstructor = annotations.persistentClass().getConstructor(String.class);
             AbstractPersistenceHandler persistentHandler = persistenceHandlerConstructor.newInstance(databaseName);
 
-            Constructor<T> proxyConstructor = proxyClass.getConstructor(AbstractPersistenceHandler.class);
-            T proxy = proxyConstructor.newInstance(persistentHandler);
-            instantiateAndSetupFields(proxy, proxyClass.getSuperclass(), setupClass);
+            ObjectDependency dependency = new ObjectDependency();
+            Constructor<T> proxyConstructor = proxyClass.getConstructor(PersistenceHandlerProxy.class, ObjectDependency.class);
+            T proxy = proxyConstructor.newInstance(new PersistenceHandlerProxy(persistentHandler), dependency);
+
+            instantiateAndSetupFields(proxy, proxyClass.getSuperclass(), setupClass, dependency);
             return proxy;
         } catch (InstantiationException e) {
             e.printStackTrace();
@@ -38,14 +40,20 @@ public class Instantiator {
         return null;
     }
 
-    public static <T> T create(Class<T> clazz, String setupName) {
+    public static <T> T create(Class<T> clazz, ObjectDependency dependency, String setupName) {
         try {
             Class setupClass = annotations.setupClassFor(clazz, setupName);
             if (setupClass == null)
                 throw new SetupNotDefinedException(format("No FactorySetup found for %s", clazz.getName()));
 
             T object = instantiate(clazz, setupClass);
-            instantiateAndSetupFields(object, clazz, setupClass);
+
+            if (dependency == null)
+                dependency = new ObjectDependency(object);
+            else
+                dependency = dependency.add(object);
+
+            instantiateAndSetupFields(object, clazz, setupClass, dependency);
             return object;
         } catch (InstantiationException e) {
             throw new FactoryInstantiationException(e);
@@ -57,8 +65,16 @@ public class Instantiator {
         return null;
     }
 
+    public static <T> T create(Class<T> clazz, ObjectDependency dependency) {
+        return create(clazz, dependency, null);
+    }
+
+    public static <T> T create(Class<T> clazz, String setupName) {
+        return create(clazz, null, setupName);
+    }
+
     public static <T> T create(Class<T> clazz) {
-        return create(clazz, null);
+        return create(clazz, null, null);
     }
 
     private static <T> T instantiate(Class<T> clazz, Class setupClass) throws InstantiationException, IllegalAccessException, InvocationTargetException {
@@ -68,28 +84,28 @@ public class Instantiator {
         return (T) factoryConstructorMethod.invoke(setupClass.newInstance());
     }
 
-    private static <T> void instantiateAndSetupFields(T object, Class<? super T> clazz, Class setupClass) throws InstantiationException, IllegalAccessException {
-        instantiateSuperFields(clazz, object, setupClass);
-        instantiateThisFields(clazz, object);
+    private static <T> void instantiateAndSetupFields(T object, Class<? super T> clazz, Class setupClass, ObjectDependency dependency) throws InstantiationException, IllegalAccessException {
+        instantiateSuperFields(clazz, object, setupClass, dependency);
+        instantiateThisFields(clazz, object, dependency);
         setup(object, setupClass);
     }
 
-    private static <T> void instantiateThisFields(Class<T> clazz, T object) throws InstantiationException, IllegalAccessException {
+    private static <T> void instantiateThisFields(Class<T> clazz, T object, ObjectDependency dependency) throws InstantiationException, IllegalAccessException {
         Field[] fields = clazz.getDeclaredFields();
         for (Field field : fields) {
             field.setAccessible(true);
             if (field.getType().equals(String.class))
                 field.set(object, new String(""));
             else if (!field.getType().isPrimitive() && !field.getType().isArray() && !field.getType().isEnum() && !field.getType().isInterface())
-                field.set(object, create(field.getType()));
+                field.set(object, create(field.getType(), dependency));
         }
     }
 
-    private static <T> void instantiateSuperFields(Class<T> clazz, T object, Class setupClass) throws InstantiationException, IllegalAccessException {
+    private static <T> void instantiateSuperFields(Class<T> clazz, T object, Class setupClass, ObjectDependency dependency) throws InstantiationException, IllegalAccessException {
         if (clazz.getSuperclass() != null) {
             Class<? super T> superClazz = clazz.getSuperclass();
             if (superClazz != Object.class)
-                instantiateAndSetupFields(object, superClazz, annotations.setupClassFor(superClazz));
+                instantiateAndSetupFields(object, superClazz, annotations.setupClassFor(superClazz), dependency);
         }
     }
 

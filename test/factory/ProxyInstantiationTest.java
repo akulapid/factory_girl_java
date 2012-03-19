@@ -79,7 +79,7 @@ class DrawerSetup {
 }
 
 class TableProxy extends Table {
-    public TableProxy(AbstractPersistenceHandler persistenceHandler) {
+    public TableProxy(PersistenceHandlerProxy persistenceHandlerProxy, ObjectDependency objectDependency) {
     }
 }
 

@@ -13,6 +13,8 @@
 
 # BUG! @Persistent is mandatory when instantiating through proxy
 
-# BUG! createProxy should mirror create; and get rid of create
-
 # BUG! defining 2 default setups for a class does not throw an exception
+
+# BUG! proxy should call super in its constructor
+
+# BUG! the proxy is being persisted instead of the actual

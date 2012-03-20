@@ -19,12 +19,16 @@ public class Instantiator {
             Persistent persistent = (Persistent) setupClass.getAnnotation(Persistent.class);
             String databaseName = persistent != null? persistent.databaseName() : null;
 
-            Constructor<AbstractPersistenceHandler> persistenceHandlerConstructor = annotations.persistentClass().getConstructor(String.class);
-            AbstractPersistenceHandler persistentHandler = persistenceHandlerConstructor.newInstance(databaseName);
+            Class persistenceHandlerClass = annotations.persistentClass();
+            AbstractPersistenceHandler persistenceHandler = null;
+            if (persistenceHandlerClass != null) {
+                Constructor<AbstractPersistenceHandler> persistenceHandlerConstructor = persistenceHandlerClass.getConstructor(String.class);
+                persistenceHandler = persistenceHandlerConstructor.newInstance(databaseName);
+            }
 
             ObjectDependency dependency = new ObjectDependency();
             Constructor<T> proxyConstructor = proxyClass.getConstructor(PersistenceHandlerProxy.class, ObjectDependency.class);
-            T proxy = proxyConstructor.newInstance(new PersistenceHandlerProxy(persistentHandler), dependency);
+            T proxy = proxyConstructor.newInstance(new PersistenceHandlerProxy(persistenceHandler), dependency);
 
             instantiateAndSetupFields(proxy, proxyClass.getSuperclass(), setupClass, dependency);
             return proxy;

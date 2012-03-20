@@ -87,7 +87,7 @@ public class Instantiator {
     private static <T> void instantiateAndSetupFields(T object, Class<? super T> clazz, Class setupClass, ObjectDependency dependency) throws InstantiationException, IllegalAccessException {
         instantiateSuperFields(clazz, object, setupClass, dependency);
         instantiateThisFields(clazz, object, dependency);
-        setup(object, setupClass);
+        setup(object, setupClass, dependency);
     }
 
     private static <T> void instantiateThisFields(Class<T> clazz, T object, ObjectDependency dependency) throws InstantiationException, IllegalAccessException {
@@ -117,7 +117,7 @@ public class Instantiator {
         }
     }
 
-    private static <T> void setup(T object, Class setupClass) throws FactorySetupException {
+    private static <T> void setup(T object, Class setupClass, ObjectDependency dependency) throws FactorySetupException {
         try {
             Object setup = setupClass.newInstance();
             List<Method> applicableSetters = getApplicableSetters(setupClass);
@@ -125,6 +125,13 @@ public class Instantiator {
             for (Method method : applicableSetters) {
                 Method targetMethod = object.getClass().getMethod(getTargetMethodNameFor(method.getName()), method.getReturnType());
                 targetMethod.invoke(object, method.invoke(setup));
+            }
+            List<Method> applicableAssociateMethods = getApplicableAssociations(setupClass);
+            assertMethodsSignature(applicableAssociateMethods);
+            for (Method method : applicableAssociateMethods) {
+                Object association = create(method.getParameterTypes()[0], dependency);
+                Method targetMethod = object.getClass().getMethod(getTargetMethodNameFor(method.getName()), method.getReturnType());
+                targetMethod.invoke(object, method.invoke(setup, association));
             }
         } catch (InstantiationException e) {
             throw new FactorySetupException("", e);
@@ -141,7 +148,7 @@ public class Instantiator {
 
     private static void assertMethodsSignature(List<Method> methods) throws InvalidSignatureException {
         for (Method method : methods) {
-            if (method.getParameterTypes().length > 0)
+            if (method.getParameterTypes().length > 1)
                 throw new InvalidSignatureException();
             if (method.getReturnType().equals(Void.TYPE))
                 throw new InvalidSignatureException();
@@ -151,9 +158,25 @@ public class Instantiator {
     private static List<Method> getApplicableSetters(Class setupClazz) {
         List<Method> publicMethods = new ArrayList<Method>();
         for (Method method : setupClazz.getDeclaredMethods())
-            if (Modifier.isPublic(method.getModifiers()) && !method.getName().equals("constructor"))
+            if (isFactorySetter(method))
                 publicMethods.add(method);
         return publicMethods;
+    }
+
+    private static List<Method> getApplicableAssociations(Class setupClazz) {
+        List<Method> publicMethods = new ArrayList<Method>();
+        for (Method method : setupClazz.getDeclaredMethods())
+            if (isFactoryAssociation(method))
+                publicMethods.add(method);
+        return publicMethods;
+    }
+
+    private static boolean isFactorySetter(Method method) {
+        return Modifier.isPublic(method.getModifiers()) && method.getParameterTypes().length == 0 && !method.getName().equals("constructor");
+    }
+
+    private static boolean isFactoryAssociation(Method method) {
+        return Modifier.isPublic(method.getModifiers()) && method.getParameterTypes().length == 1 && !method.getName().equals("constructor");
     }
 
     private static String getTargetMethodNameFor(String setupSetter) {

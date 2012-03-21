@@ -44,7 +44,7 @@ public class Instantiator {
         return null;
     }
 
-    public static <T> T create(Class<T> clazz, ObjectDependency dependency, String setupName) {
+    public static <T> T create(Class<T> clazz, String setupName, ObjectDependency dependency, String fieldName) {
         try {
             Class setupClass = annotations.setupClassFor(clazz, setupName);
             if (setupClass == null)
@@ -53,7 +53,7 @@ public class Instantiator {
             T object = instantiate(clazz, setupClass);
 
             if (dependency != null)
-                dependency = dependency.add(object);
+                dependency = dependency.add(object, fieldName);
 
             instantiateAndSetupFields(object, clazz, setupClass, dependency);
             return object;
@@ -67,16 +67,16 @@ public class Instantiator {
         return null;
     }
 
-    public static <T> T create(Class<T> clazz, ObjectDependency dependency) {
-        return create(clazz, dependency, null);
+    public static <T> T create(Class<T> clazz, ObjectDependency dependency, String fieldName) {
+        return create(clazz, null, dependency, fieldName);
     }
 
     public static <T> T create(Class<T> clazz, String setupName) {
-        return create(clazz, null, setupName);
+        return create(clazz, setupName, null, null);
     }
 
     public static <T> T create(Class<T> clazz) {
-        return create(clazz, null, null);
+        return create(clazz, null, null, null);
     }
 
     private static <T> T instantiate(Class<T> clazz, Class setupClass) throws InstantiationException, IllegalAccessException, InvocationTargetException {
@@ -99,7 +99,7 @@ public class Instantiator {
             if (field.getType().equals(String.class))
                 field.set(object, new String(""));
             else if (!field.getType().isPrimitive() && !field.getType().isArray() && !field.getType().isEnum() && !field.getType().isInterface())
-                field.set(object, create(field.getType()));
+                field.set(object, create(field.getType(), null, null, field.getName()));
         }
     }
 
@@ -131,7 +131,7 @@ public class Instantiator {
             List<Method> applicableAssociateMethods = getApplicableAssociations(setupClass);
             assertMethodsSignature(applicableAssociateMethods);
             for (Method method : applicableAssociateMethods) {
-                Object association = create(method.getParameterTypes()[0], dependency);
+                Object association = create(method.getParameterTypes()[0], dependency, method.getName());
                 Method targetMethod = object.getClass().getMethod(getTargetMethodNameFor(method.getName()), method.getReturnType());
                 targetMethod.invoke(object, method.invoke(setup, association));
             }

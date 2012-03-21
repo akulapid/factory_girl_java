@@ -109,6 +109,7 @@ public class ProxySourceGenerator {
         String settingVariable = setterElement.getParameters().get(0).toString();
 
         source.append("    public " + proxyClassName + " " + getProxySetterName(methodName) + "(" + settingType + " " + settingVariable + ") {\n");
+        source.append("        objectDependency.remove(\"" + settingVariable + "\");\n");
         source.append("        " + methodName + "(" + settingVariable + ");\n");
         source.append("        return this;\n");
         source.append("    }\n\n");

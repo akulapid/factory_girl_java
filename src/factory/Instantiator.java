@@ -52,9 +52,7 @@ public class Instantiator {
 
             T object = instantiate(clazz, setupClass);
 
-            if (dependency == null)
-                dependency = new ObjectDependency(object);
-            else
+            if (dependency != null)
                 dependency = dependency.add(object);
 
             instantiateAndSetupFields(object, clazz, setupClass, dependency);
@@ -101,7 +99,7 @@ public class Instantiator {
             if (field.getType().equals(String.class))
                 field.set(object, new String(""));
             else if (!field.getType().isPrimitive() && !field.getType().isArray() && !field.getType().isEnum() && !field.getType().isInterface())
-                field.set(object, create(field.getType(), dependency));
+                field.set(object, create(field.getType()));
         }
     }
 

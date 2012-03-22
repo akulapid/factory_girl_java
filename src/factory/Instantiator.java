@@ -1,5 +1,6 @@
 package factory;
 
+import com.sun.javadoc.SeeTag;
 import factory.annotations.Annotations;
 import org.apache.commons.lang3.text.WordUtils;
 
@@ -125,14 +126,14 @@ public class Instantiator {
             List<Method> applicableSetters = getApplicableSetters(setupClass);
             assertMethodsSignature(applicableSetters);
             for (Method method : applicableSetters) {
-                Method targetMethod = object.getClass().getMethod(getTargetMethodNameFor(method.getName()), method.getReturnType());
+                Method targetMethod = object.getClass().getMethod(getTargetMethodNameFor(method), method.getReturnType());
                 targetMethod.invoke(object, method.invoke(setup));
             }
             List<Method> applicableAssociateMethods = getApplicableAssociations(setupClass);
             assertMethodsSignature(applicableAssociateMethods);
             for (Method method : applicableAssociateMethods) {
                 Object association = create(method.getParameterTypes()[0], dependency, method.getName());
-                Method targetMethod = object.getClass().getMethod(getTargetMethodNameFor(method.getName()), method.getReturnType());
+                Method targetMethod = object.getClass().getMethod(getTargetMethodNameFor(method), method.getReturnType());
                 targetMethod.invoke(object, method.invoke(setup, association));
             }
         } catch (InstantiationException e) {
@@ -146,6 +147,12 @@ public class Instantiator {
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
+    }
+
+    private static String getTargetMethodNameFor(Method setupSetter) {
+        if (setupSetter.isAnnotationPresent(Setter.class))
+            return setupSetter.getAnnotation(Setter.class).method();
+        return "set" + WordUtils.capitalize(setupSetter.getName());
     }
 
     private static void assertMethodsSignature(List<Method> methods) throws InvalidSignatureException {
@@ -179,9 +186,5 @@ public class Instantiator {
 
     private static boolean isFactoryAssociation(Method method) {
         return Modifier.isPublic(method.getModifiers()) && method.getParameterTypes().length == 1 && !method.getName().equals("constructor");
-    }
-
-    private static String getTargetMethodNameFor(String setupSetter) {
-        return "set" + WordUtils.capitalize(setupSetter);
     }
 }

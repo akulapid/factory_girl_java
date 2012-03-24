@@ -18,6 +18,11 @@ public class ObjectDependency {
     }
 
     public ObjectDependency add(Object object, String fieldName) {
+        if (this.object == null) {
+            this.object = object;
+            this.fieldName = fieldName;
+            return this;
+        }
         ObjectDependency dependency = new ObjectDependency(object, fieldName);
         dependencies.add(dependency);
         return dependency;
@@ -35,12 +40,8 @@ public class ObjectDependency {
         return object;
     }
 
-    public void setObject(Object object) {
-        this.object = object;
-    }
-
-    public void setFieldName(String fieldName) {
-        this.fieldName = fieldName;
+    public String getFieldName() {
+        return fieldName;
     }
 
     public List<ObjectDependency> getDependencies() {

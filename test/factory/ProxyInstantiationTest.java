@@ -78,8 +78,16 @@ class DrawerSetup {
     }
 }
 
-class TableProxy extends Table {
-    public TableProxy(PersistenceHandlerProxy persistenceHandlerProxy, ObjectDependency objectDependency) {
+class TableProxy {
+
+    private Table object;
+
+    public TableProxy(Table object, ObjectDependency objectDependency, PersistenceHandlerProxy persistenceHandlerProxy) {
+        this.object = object;
+    }
+
+    public Table getTable() {
+        return object;
     }
 }
 
@@ -91,21 +99,21 @@ public class ProxyInstantiationTest {
 
     @Test
     public void shouldInstantiateProxyAndSetupActualSuperFields() {
-        assertEquals("wood", Instantiator.createProxy(TableProxy.class, "").getMadeOf());
+        assertEquals("wood", Instantiator.createProxy(TableProxy.class, Table.class, "").getTable().getMadeOf());
     }
 
     @Test
     public void shouldInstantiateProxyAndSetupActualThisFields() {
-        assertEquals("rectangle", Instantiator.createProxy(TableProxy.class, "").getShape());
+        assertEquals("rectangle", Instantiator.createProxy(TableProxy.class, Table.class, "").getTable().getShape());
     }
 
     @Test
     public void shouldInstantiateProxyAndSetupActualThisFieldsFromAlias() {
-        assertEquals("circle", Instantiator.createProxy(TableProxy.class, "RoundTable").getShape());
+        assertEquals("circle", Instantiator.createProxy(TableProxy.class, Table.class, "RoundTable").getTable().getShape());
     }
 
     @Test
     public void shouldInstantiateProxyAndInstantiateAndSetupThisFields() {
-        assertEquals(2000, Instantiator.createProxy(TableProxy.class, "RoundTable").getDrawer().getCapacity());
+        assertEquals(2000, Instantiator.createProxy(TableProxy.class, Table.class, "RoundTable").getTable().getDrawer().getCapacity());
     }
 }

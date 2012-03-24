@@ -9,6 +9,8 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.List;
 
+import static java.lang.String.format;
+
 public class FactoriesSourceGenerator {
 
     Filer filer;
@@ -33,24 +35,25 @@ public class FactoriesSourceGenerator {
 
     String getSource(List<Pair<TypeElement, String>> elements) {
         StringBuilder source = new StringBuilder();
-        source.append("package factory;\n\n");
-        source.append("public class Factory {\n\n");
+        source.append(format("package factory;\n\n"));
+        source.append(format("public class Factory {\n\n"));
         for (Pair<TypeElement, String> elementSetupPair : elements)
             source.append(getFactorySource(elementSetupPair));
-        source.append("}");
+        source.append(format("}"));
         return source.toString();
     }
 
     String getFactorySource(Pair<TypeElement, String> elementSetupPair) {
         String classSimpleName = elementSetupPair.getLeft().getSimpleName().toString();
+        String classFQName = elementSetupPair.getLeft().getQualifiedName().toString();
         String proxyClassName = proxyClassNameMapper.map(classSimpleName);
         String setupName = elementSetupPair.getRight();
         String factoryName = "new" + (setupName.isEmpty()? classSimpleName : setupName);
 
         StringBuilder source = new StringBuilder();
-        source.append("    public static factory." + proxyClassName + " " + factoryName + "() {\n");
-        source.append("        return factory.Instantiator.createProxy(" + proxyClassName + ".class, \"" + setupName + "\");\n");
-        source.append("    }\n\n");
+        source.append(format("    public static factory.%s %s() {\n", proxyClassName, factoryName));
+        source.append(format("        return factory.Instantiator.createProxy(%s.class, %s.class, \"%s\");\n", proxyClassName, classFQName, setupName));
+        source.append(format("    }\n\n"));
         return source.toString();
     }
 }

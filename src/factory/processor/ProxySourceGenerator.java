@@ -11,6 +11,8 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.lang.String.format;
+
 public class ProxySourceGenerator {
 
     private Filer filer;
@@ -44,12 +46,13 @@ public class ProxySourceGenerator {
         source.append("package factory;\n\n");
 
         String className = classElement.getQualifiedName().toString();
-        source.append("public class " + proxyClassName + " extends " + className + " {\n\n");
+        source.append(format("public class %s {\n\n", proxyClassName));
 
-        source.append("    private " + PersistenceHandlerProxy.class.getCanonicalName() + " persistenceHandlerProxy;\n\n");
-        source.append("    private " + ObjectDependency.class.getCanonicalName() + " objectDependency;\n\n");
+        source.append(format("    private %s object;\n", className));
+        source.append(format("    private %s objectDependency;\n", ObjectDependency.class.getCanonicalName()));
+        source.append(format("    private %s persistenceHandlerProxy;\n\n", PersistenceHandlerProxy.class.getCanonicalName()));
 
-        source.append(getConstructorSource(proxyClassName));
+        source.append(getConstructorSource(proxyClassName, className));
         source.append("\n");
 
         for (ExecutableElement setterElement : getSetterMethodElements(classElement)) {
@@ -66,39 +69,39 @@ public class ProxySourceGenerator {
         return source.toString();
     }
 
-    private String getFactorySetupSource(String proxyClassName) {
+    String getConstructorSource(String proxyClassName, Object className) {
         StringBuilder source = new StringBuilder();
-        source.append("@" + __SetupForProxy.class.getCanonicalName() + "(" + proxyClassName +  ".class)\n");
-        source.append("class " + proxyClassName + "_Setup {\n");
-        source.append("}\n");
-        return source.toString();
-    }
-
-    String getConstructorSource(String proxyClassName) {
-        StringBuilder source = new StringBuilder();
-        source.append("    public " + proxyClassName + "(" + PersistenceHandlerProxy.class.getCanonicalName() + " persistenceHandlerProxy, " + ObjectDependency.class.getCanonicalName() + " objectDependency) {\n");
-        source.append("        this.persistenceHandlerProxy = persistenceHandlerProxy;\n");
-        source.append("        this.objectDependency = objectDependency;\n");
-        source.append("    }\n");
+        source.append(format("    public %s(%s object, %s objectDependency, %s persistenceHandlerProxy) {\n", proxyClassName, className, ObjectDependency.class.getCanonicalName(), PersistenceHandlerProxy.class.getCanonicalName()));
+        source.append(format("        this.object = object;\n"));
+        source.append(format("        this.objectDependency = objectDependency;\n"));
+        source.append(format("        this.persistenceHandlerProxy = persistenceHandlerProxy;\n"));
+        source.append(format("    }\n"));
         return source.toString();
     }
 
     String getBuilderSource(String className) {
         StringBuilder source = new StringBuilder();
-        source.append("    public " + className + " build() {\n");
-        source.append("        return (" + className + ") this;\n");
-        source.append("    }\n");
+        source.append(format("    public %s build() {\n", className));
+        source.append(format("        return object;\n"));
+        source.append(format("    }\n"));
         return source.toString();
     }
 
     String getCreateSource(String className) {
         StringBuilder source = new StringBuilder();
-        source.append("    public " + className + " create() {\n");
-        source.append("        " + className + " object = build();\n" );
-        source.append("        this.objectDependency.setObject(object);\n" );
-        source.append("        this.persistenceHandlerProxy.execute(this.objectDependency);\n");
-        source.append("        return object;\n");
-        source.append("    }\n");
+        source.append(format("    public %s create() {\n", className));
+        source.append(format("        %s object = build();\n", className));
+        source.append(format("        this.persistenceHandlerProxy.execute(this.objectDependency);\n"));
+        source.append(format("        return object;\n"));
+        source.append(format("    }\n"));
+        return source.toString();
+    }
+
+    private String getFactorySetupSource(String proxyClassName) {
+        StringBuilder source = new StringBuilder();
+        source.append(format("@%s(%s.class)\n", __SetupForProxy.class.getCanonicalName(), proxyClassName));
+        source.append(format("class %s_Setup {\n", proxyClassName));
+        source.append(format("}\n"));
         return source.toString();
     }
 
@@ -108,11 +111,11 @@ public class ProxySourceGenerator {
         String settingType = setterElement.getParameters().get(0).asType().toString();
         String settingVariable = setterElement.getParameters().get(0).toString();
 
-        source.append("    public " + proxyClassName + " " + getProxySetterName(methodName) + "(" + settingType + " " + settingVariable + ") {\n");
-        source.append("        objectDependency.remove(\"" + settingVariable + "\");\n");
-        source.append("        " + methodName + "(" + settingVariable + ");\n");
-        source.append("        return this;\n");
-        source.append("    }\n\n");
+        source.append(format("    public %s %s(%s %s) {\n", proxyClassName, methodName, settingType, settingVariable));
+        source.append(format("        objectDependency.remove(\"%s\");\n", settingVariable));
+        source.append(format("        object.%s(%s);\n", methodName, settingVariable));
+        source.append(format("        return this;\n"));
+        source.append(format("    }\n\n"));
         return source.toString();
     }
 
@@ -128,9 +131,7 @@ public class ProxySourceGenerator {
         for (Element enclosedElement : rootElement.getEnclosedElements()) {
             if (enclosedElement instanceof ExecutableElement) {
                 ExecutableElement element = (ExecutableElement) enclosedElement;
-                if (element.getReturnType().toString().equals("void") &&
-                    element.getSimpleName().toString().startsWith("set") &&
-                    element.getParameters().size() == 1) {
+                if (element.getReturnType().toString().equals("void") && element.getParameters().size() == 1) {
                     setterMethodElements.add(element);
                 }
             }

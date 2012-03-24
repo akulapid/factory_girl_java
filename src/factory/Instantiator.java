@@ -1,6 +1,5 @@
 package factory;
 
-import com.sun.javadoc.SeeTag;
 import factory.annotations.Annotations;
 import org.apache.commons.lang3.text.WordUtils;
 
@@ -14,9 +13,9 @@ public class Instantiator {
 
     private static Annotations annotations = new Annotations();
 
-    public static <T> T createProxy(Class<T> proxyClass, String setupName) {
+    public static <T> T createProxy(Class<T> proxyClass, Class actualClass, String setupName) {
         try {
-            Class setupClass = annotations.setupClassFor(proxyClass.getSuperclass(), setupName);
+            Class setupClass = annotations.setupClassFor(actualClass, setupName);
             Persistent persistent = (Persistent) setupClass.getAnnotation(Persistent.class);
             String databaseName = persistent != null? persistent.databaseName() : null;
 
@@ -28,10 +27,10 @@ public class Instantiator {
             }
 
             ObjectDependency dependency = new ObjectDependency();
-            Constructor<T> proxyConstructor = proxyClass.getConstructor(PersistenceHandlerProxy.class, ObjectDependency.class);
-            T proxy = proxyConstructor.newInstance(new PersistenceHandlerProxy(persistenceHandler), dependency);
+            Object object = create(actualClass, setupName, dependency, null);
 
-            instantiateAndSetupFields(proxy, proxyClass.getSuperclass(), setupClass, dependency);
+            Constructor<T> proxyConstructor = proxyClass.getConstructor(actualClass, ObjectDependency.class, PersistenceHandlerProxy.class);
+            T proxy = proxyConstructor.newInstance(object, dependency, new PersistenceHandlerProxy(persistenceHandler));
             return proxy;
         } catch (InstantiationException e) {
             e.printStackTrace();
@@ -68,10 +67,6 @@ public class Instantiator {
         return null;
     }
 
-    public static <T> T create(Class<T> clazz, ObjectDependency dependency, String fieldName) {
-        return create(clazz, null, dependency, fieldName);
-    }
-
     public static <T> T create(Class<T> clazz, String setupName) {
         return create(clazz, setupName, null, null);
     }
@@ -88,18 +83,18 @@ public class Instantiator {
     }
 
     private static <T> void instantiateAndSetupFields(T object, Class<? super T> clazz, Class setupClass, ObjectDependency dependency) throws InstantiationException, IllegalAccessException {
-        instantiateSuperFields(clazz, object, setupClass, dependency);
-        instantiateThisFields(clazz, object, dependency);
+        instantiateSuperFields(clazz, object);
+        instantiateThisFields(clazz, object);
         if (setupClass != null)
             setup(object, setupClass, dependency);
     }
 
-    private static <T> void instantiateThisFields(Class<T> clazz, T object, ObjectDependency dependency) throws InstantiationException, IllegalAccessException {
+    private static <T> void instantiateThisFields(Class<T> clazz, T object) throws InstantiationException, IllegalAccessException {
         Field[] fields = clazz.getDeclaredFields();
         for (Field field : fields) {
             field.setAccessible(true);
             if (field.getType().equals(String.class))   // should do you this?
-                field.set(object, new String(""));
+                field.set(object, "");
             else if (!field.getType().isPrimitive() && !field.getType().isArray() && !field.getType().isEnum() && !field.getType().isInterface()) {
                 try {
                     field.set(object, create(field.getType(), null, null, field.getName()));
@@ -109,11 +104,11 @@ public class Instantiator {
         }
     }
 
-    private static <T> void instantiateSuperFields(Class<T> clazz, T object, Class setupClass, ObjectDependency dependency) throws InstantiationException, IllegalAccessException {
+    private static <T> void instantiateSuperFields(Class<T> clazz, T object) throws InstantiationException, IllegalAccessException {
         if (clazz.getSuperclass() != null) {
             Class<? super T> superClazz = clazz.getSuperclass();
             if (superClazz != Object.class)
-                instantiateAndSetupFields(object, superClazz, annotations.setupClassFor(superClazz), dependency);
+                instantiateAndSetupFields(object, superClazz, annotations.setupClassFor(superClazz), null);
         }
     }
 
@@ -138,7 +133,7 @@ public class Instantiator {
             List<Method> applicableAssociateMethods = getApplicableAssociations(setupClass);
             assertMethodsSignature(applicableAssociateMethods);
             for (Method method : applicableAssociateMethods) {
-                Object association = create(method.getParameterTypes()[0], dependency, method.getName());
+                Object association = create(method.getParameterTypes()[0], null, dependency, method.getName());
                 Method targetMethod = object.getClass().getMethod(getTargetMethodNameFor(method), method.getReturnType());
                 targetMethod.invoke(object, method.invoke(setup, association));
             }

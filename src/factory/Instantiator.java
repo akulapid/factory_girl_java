@@ -90,17 +90,22 @@ public class Instantiator {
     private static <T> void instantiateAndSetupFields(T object, Class<? super T> clazz, Class setupClass, ObjectDependency dependency) throws InstantiationException, IllegalAccessException {
         instantiateSuperFields(clazz, object, setupClass, dependency);
         instantiateThisFields(clazz, object, dependency);
-        setup(object, setupClass, dependency);
+        if (setupClass != null)
+            setup(object, setupClass, dependency);
     }
 
     private static <T> void instantiateThisFields(Class<T> clazz, T object, ObjectDependency dependency) throws InstantiationException, IllegalAccessException {
         Field[] fields = clazz.getDeclaredFields();
         for (Field field : fields) {
             field.setAccessible(true);
-            if (field.getType().equals(String.class))
+            if (field.getType().equals(String.class))   // should do you this?
                 field.set(object, new String(""));
-            else if (!field.getType().isPrimitive() && !field.getType().isArray() && !field.getType().isEnum() && !field.getType().isInterface())
-                field.set(object, create(field.getType(), null, null, field.getName()));
+            else if (!field.getType().isPrimitive() && !field.getType().isArray() && !field.getType().isEnum() && !field.getType().isInterface()) {
+                try {
+                    field.set(object, create(field.getType(), null, null, field.getName()));
+                } catch (SetupNotDefinedException e) {
+                }
+            }
         }
     }
 
@@ -121,6 +126,7 @@ public class Instantiator {
     }
 
     private static <T> void setup(T object, Class setupClass, ObjectDependency dependency) throws FactorySetupException {
+
         try {
             Object setup = setupClass.newInstance();
             List<Method> applicableSetters = getApplicableSetters(setupClass);

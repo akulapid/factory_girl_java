@@ -2,6 +2,8 @@ package factory;
 
 import org.junit.Test;
 
+import static junit.framework.Assert.assertEquals;
+
 class Stub {
 }
 
@@ -27,6 +29,61 @@ class ClassWithInvalidSetupDefinitionSetup {
     }
 }
 
+class Coffee {
+    int caffeineContent;
+    int chicoryId;
+
+    public int getCaffeineContent() {
+        return caffeineContent;
+    }
+
+    public void setCaffeineContent(int caffeineContent) {
+        this.caffeineContent = caffeineContent;
+    }
+
+    public int getChicoryId() {
+        return chicoryId;
+    }
+
+    public void setChicoryId(int chicoryId) {
+        this.chicoryId = chicoryId;
+    }
+}
+
+class Chicory {
+    int id;
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+}
+
+@Setup(Coffee.class)
+class CoffeeSetup {
+    public int caffeineContent() {
+        return 5;
+    }
+
+    public int chicoryId(Chicory chicory) {
+        return chicory.getId();
+    }
+}
+
+@Setup(value = Coffee.class, name = "Mocha")
+class Mocha extends CoffeeSetup {
+}
+
+@Setup(Chicory.class)
+class ChicorySetup {
+    public int id() {
+        return 2;
+    }
+}
+
 public class SetupDefinitionTest {
 
     @Test(expected = FactorySetupException.class)
@@ -42,5 +99,11 @@ public class SetupDefinitionTest {
     @Test(expected = FactorySetupException.class)
     public void shouldThrowExceptionIfSetupMethodIsNotFound() {
         Instantiator.create(ClassWithInvalidSetupDefinition.class);
+    }
+
+    @Test
+    public void shouldInheritSettingsFromSuperSetup() {
+        assertEquals(5, Instantiator.create(Coffee.class, "Mocha").getCaffeineContent());
+        assertEquals(2, Instantiator.create(Coffee.class, "Mocha").getChicoryId());
     }
 }

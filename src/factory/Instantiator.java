@@ -1,6 +1,7 @@
 package factory;
 
 import factory.annotations.Annotations;
+import org.apache.commons.collections.ListUtils;
 import org.apache.commons.lang3.text.WordUtils;
 
 import java.lang.reflect.*;
@@ -8,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.String.format;
+import static java.util.Arrays.asList;
 
 public class Instantiator {
 
@@ -167,7 +169,7 @@ public class Instantiator {
 
     private static List<Method> getApplicableSetters(Class setupClazz) {
         List<Method> publicMethods = new ArrayList<Method>();
-        for (Method method : setupClazz.getDeclaredMethods())
+        for (Method method : getMethodsExcludingObjectMethods(setupClazz))
             if (isFactorySetter(method))
                 publicMethods.add(method);
         return publicMethods;
@@ -175,10 +177,14 @@ public class Instantiator {
 
     private static List<Method> getApplicableAssociations(Class setupClazz) {
         List<Method> publicMethods = new ArrayList<Method>();
-        for (Method method : setupClazz.getDeclaredMethods())
+        for (Method method : getMethodsExcludingObjectMethods(setupClazz))
             if (isFactoryAssociation(method))
                 publicMethods.add(method);
         return publicMethods;
+    }
+
+    private static List<Method> getMethodsExcludingObjectMethods(Class setupClazz) {
+        return ListUtils.subtract(asList(setupClazz.getMethods()), asList(Object.class.getMethods()));
     }
 
     private static boolean isFactorySetter(Method method) {

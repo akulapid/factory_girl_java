@@ -15,9 +15,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-@SupportedAnnotationTypes("factory.Factory")
+@SupportedAnnotationTypes("akula.factory.Factory")
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
-public class FactorySetupProcessor extends AbstractProcessor {
+public class FactoryProcessor extends AbstractProcessor {
 
     private ProxyClassNameMapper proxyClassNameMapper;
     private FactoriesSourceGenerator factoriesSourceGenerator;

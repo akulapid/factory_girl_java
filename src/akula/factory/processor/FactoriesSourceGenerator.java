@@ -13,6 +13,8 @@ import static java.lang.String.format;
 
 public class FactoriesSourceGenerator {
 
+    public static final String BASE_PACKAGE = "akula.factory";
+
     Filer filer;
     ProxyClassNameMapper proxyClassNameMapper;
 
@@ -23,7 +25,7 @@ public class FactoriesSourceGenerator {
 
     public void writeSource(List<Pair<TypeElement,String>> elements) {
         try {
-            OutputStream os = filer.createSourceFile("factory.Factory").openOutputStream();
+            OutputStream os = filer.createSourceFile(BASE_PACKAGE + ".Factories").openOutputStream();
             PrintWriter pw = new PrintWriter(os);
             pw.print(getSource(elements));
             pw.close();
@@ -35,8 +37,8 @@ public class FactoriesSourceGenerator {
 
     String getSource(List<Pair<TypeElement, String>> elements) {
         StringBuilder source = new StringBuilder();
-        source.append(format("package factory;\n\n"));
-        source.append(format("public class Factory {\n\n"));
+        source.append(format("package %s;\n\n", BASE_PACKAGE));
+        source.append(format("public class Factories {\n\n"));
         for (Pair<TypeElement, String> elementSetupPair : elements)
             source.append(getFactorySource(elementSetupPair));
         source.append(format("}"));
@@ -51,8 +53,8 @@ public class FactoriesSourceGenerator {
         String factoryName = "new" + (setupName.isEmpty()? classSimpleName : setupName);
 
         StringBuilder source = new StringBuilder();
-        source.append(format("    public static factory.%s %s() {\n", proxyClassName, factoryName));
-        source.append(format("        return factory.Instantiator.createProxy(%s.class, %s.class, \"%s\");\n", proxyClassName, classFQName, setupName));
+        source.append(format("    public static %s.%s %s() {\n", BASE_PACKAGE, proxyClassName, factoryName));
+        source.append(format("        return %s.Instantiator.createProxy(%s.class, %s.class, \"%s\");\n", BASE_PACKAGE, proxyClassName, classFQName, setupName));
         source.append(format("    }\n\n"));
         return source.toString();
     }

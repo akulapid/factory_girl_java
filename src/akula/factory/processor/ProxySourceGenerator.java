@@ -15,6 +15,8 @@ import static java.lang.String.format;
 
 public class ProxySourceGenerator {
 
+    public static final String BASE_PACKAGE = "akula.factory";
+
     private Filer filer;
     private ProxyClassNameMapper proxyClassNameMapper;
 
@@ -26,7 +28,7 @@ public class ProxySourceGenerator {
     void writeSource(TypeElement element) {
         try {
             String proxyClassName = proxyClassNameMapper.map(getCanonicalName(element));
-            OutputStream os = filer.createSourceFile("factory." + proxyClassName).openOutputStream();
+            OutputStream os = filer.createSourceFile(BASE_PACKAGE + "." + proxyClassName).openOutputStream();
             PrintWriter pw = new PrintWriter(os);
             pw.print(getSource(element, proxyClassName));
             pw.close();
@@ -43,7 +45,7 @@ public class ProxySourceGenerator {
 
     String getSource(TypeElement classElement, String proxyClassName) throws Exception {
         StringBuilder source = new StringBuilder();
-        source.append("package factory;\n\n");
+        source.append(format("package %s;\n\n", BASE_PACKAGE));
 
         String className = classElement.getQualifiedName().toString();
         source.append(format("public class %s {\n\n", proxyClassName));

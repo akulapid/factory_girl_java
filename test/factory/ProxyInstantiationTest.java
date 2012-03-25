@@ -50,28 +50,28 @@ class Table extends Furniture {
     }
 }
 
-@Setup(Furniture.class)
+@Factory(Furniture.class)
 class FurnitureSetup {
     public String madeOf() {
         return "wood";
     }
 }
 
-@Setup(Table.class)
+@Factory(Table.class)
 class TableSetup {
     public String shape() {
         return "rectangle";
     }
 }
 
-@Setup(value = Table.class, name = "RoundTable")
+@Factory(value = Table.class, name = "RoundTable")
 class RoundTable {
     public String shape() {
         return "circle";
     }
 }
 
-@Setup(Drawer.class)
+@Factory(Drawer.class)
 class DrawerSetup {
     public int capacity() {
         return 2000;

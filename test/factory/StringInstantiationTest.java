@@ -17,7 +17,7 @@ class ClassWithStringField {
     }
 }
 
-@Setup(ClassWithStringField.class)
+@Factory(ClassWithStringField.class)
 class ClassWithStringFieldSetup {
     public String foo() {
         return "bar";

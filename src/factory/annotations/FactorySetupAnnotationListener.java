@@ -2,7 +2,7 @@ package factory.annotations;
 
 import com.impetus.annovention.listener.ClassAnnotationDiscoveryListener;
 import factory.DuplicateSetupException;
-import factory.Setup;
+import factory.Factory;
 
 import java.util.Map;
 
@@ -18,27 +18,27 @@ public class FactorySetupAnnotationListener implements ClassAnnotationDiscoveryL
 
     public String[] supportedAnnotations() {
         return new String[] {
-            Setup.class.getName()
+            Factory.class.getName()
         };
     }
 
     public void discovered(String setupClass, String annotationName) {
         try {
             Class factorySetupClass = Class.forName(setupClass);
-            Setup setup = (Setup) factorySetupClass.getAnnotation(Class.forName(annotationName));
-            String key = getKey(setup);
+            Factory factory = (Factory) factorySetupClass.getAnnotation(Class.forName(annotationName));
+            String key = getKey(factory);
             if (factorySetups.containsKey(key))
-                throw new DuplicateSetupException(format("Duplicate setup names between (%s) and (%s)", factorySetupClass.getCanonicalName(), factorySetups.get(key).getCanonicalName()));
+                throw new DuplicateSetupException(format("Duplicate factory names between (%s) and (%s)", factorySetupClass.getCanonicalName(), factorySetups.get(key).getCanonicalName()));
             factorySetups.put(key, factorySetupClass);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private String getKey(Setup setup) {
-        String key = setup.name();
+    private String getKey(Factory factory) {
+        String key = factory.name();
         if (key.isEmpty())
-            key = setup.value().getSimpleName();
+            key = factory.value().getSimpleName();
         return key;
     }
 }

@@ -10,7 +10,7 @@ class Bicycle {
 class MountainBike extends Bicycle {
 }
 
-@Setup(MountainBike.class)
+@Factory(MountainBike.class)
 class MountainBikeSetup {
 }
 

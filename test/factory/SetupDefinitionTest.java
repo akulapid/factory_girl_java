@@ -10,7 +10,7 @@ class Stub {
 class ClassWithInvalidSetupDefinition {
 }
 
-@Setup(Stub.class)
+@Factory(Stub.class)
 class StubSetup {
 
     public int foo(int bar) {
@@ -21,7 +21,7 @@ class StubSetup {
     }
 }
 
-@Setup(ClassWithInvalidSetupDefinition.class)
+@Factory(ClassWithInvalidSetupDefinition.class)
 class ClassWithInvalidSetupDefinitionSetup {
 
     public int undefinedMethod() {
@@ -62,7 +62,7 @@ class Chicory {
     }
 }
 
-@Setup(Coffee.class)
+@Factory(Coffee.class)
 class CoffeeSetup {
     public int caffeineContent() {
         return 5;
@@ -73,11 +73,11 @@ class CoffeeSetup {
     }
 }
 
-@Setup(value = Coffee.class, name = "Mocha")
+@Factory(value = Coffee.class, name = "Mocha")
 class Mocha extends CoffeeSetup {
 }
 
-@Setup(Chicory.class)
+@Factory(Chicory.class)
 class ChicorySetup {
     public int id() {
         return 2;

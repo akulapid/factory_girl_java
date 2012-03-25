@@ -18,14 +18,14 @@ class Subscription {
     }
 }
 
-@Setup(value = Subscription.class, name = "ActiveSubscription")
+@Factory(value = Subscription.class, name = "ActiveSubscription")
 class ActiveSubscriptionSetup {
     public String state() {
         return "active";
     }
 }
 
-@Setup(value = Subscription.class, name = "InactiveSubscription")
+@Factory(value = Subscription.class, name = "InactiveSubscription")
 class InactiveSubscriptionSetup {
     public String state() {
         return "inactive";

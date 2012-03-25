@@ -27,7 +27,7 @@ class Color {
     }
 }
 
-@Setup(Color.class)
+@Factory(Color.class)
 class ColorSetup {
 
     @Setter(method = "colorMeRed")

@@ -19,7 +19,7 @@ class ClassWithSetupDefined {
     }
 }
 
-@Setup(ClassWithSetupDefined.class)
+@Factory(ClassWithSetupDefined.class)
 class ClassWithSetupDefinedSetup {
 
     public int capacity() {
@@ -27,7 +27,7 @@ class ClassWithSetupDefinedSetup {
     }
 }
 
-@Setup(value = ClassWithSetupDefined.class, name = "AliasClass")
+@Factory(value = ClassWithSetupDefined.class, name = "AliasClass")
 class ClassWithSetupDefinedSetupAlias {
 
     public int capacity() {

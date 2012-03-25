@@ -8,7 +8,7 @@ class ClassWithPrimitiveField {
     int aPrimitiveField;
 }
 
-@Setup(ClassWithPrimitiveField.class)
+@Factory(ClassWithPrimitiveField.class)
 class ClassWithPrimitiveFieldSetup {
 }
 

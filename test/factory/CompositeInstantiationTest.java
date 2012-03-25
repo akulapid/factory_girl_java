@@ -28,19 +28,19 @@ class Zone {
 class City {
 }
 
-@Setup(Country.class)
+@Factory(Country.class)
 class CountrySetup {
 }
 
-@Setup(State.class)
+@Factory(State.class)
 class StateSetup {
 }
 
-@Setup(District.class)
+@Factory(District.class)
 class DistrictSetup {
 }
 
-@Setup(Zone.class)
+@Factory(Zone.class)
 class ZoneSetup {
     public String name() {
         return "zone";

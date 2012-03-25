@@ -37,7 +37,7 @@ class Engine {
     }
 }
 
-@Setup(Train.class)
+@Factory(Train.class)
 class TrainSetup {
 
     public int capacity() {
@@ -45,7 +45,7 @@ class TrainSetup {
     }
 }
 
-@Setup(Engine.class)
+@Factory(Engine.class)
 class EngineSetup {
 
     public int kind() {

@@ -7,7 +7,7 @@
 
 # openjdk? - test factory against open jdk
 
-# how do you pick setup when there are multiple aliases? esp when it's a instatiated as a field
+# how do you pick factory when there are multiple aliases? esp when it's a instatiated as a field
 
 # Generalize the callback mechanism currently used for persistence
 

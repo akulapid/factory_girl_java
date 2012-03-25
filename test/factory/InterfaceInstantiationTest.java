@@ -17,7 +17,7 @@ class ClassComposingAnInterface {
     }
 }
 
-@Setup(ClassComposingAnInterface.class)
+@Factory(ClassComposingAnInterface.class)
 class ClassComposingAnInterfaceSetup {
 }
 

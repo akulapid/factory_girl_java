@@ -28,14 +28,14 @@ class License {
     }
 }
 
-@Setup(Driver.class)
+@Factory(Driver.class)
 class DriverSetup {
     public String licenseId(License license) {
         return license.getId();
     }
 }
 
-@Setup(License.class)
+@Factory(License.class)
 class LicenseSetup {
     public String id() {
         return "123";

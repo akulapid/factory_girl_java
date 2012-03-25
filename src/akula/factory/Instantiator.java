@@ -95,9 +95,7 @@ public class Instantiator {
         Field[] fields = clazz.getDeclaredFields();
         for (Field field : fields) {
             field.setAccessible(true);
-            if (field.getType().equals(String.class))   // should do you this?
-                field.set(object, "");
-            else if (!field.getType().isPrimitive() && !field.getType().isArray() && !field.getType().isEnum() && !field.getType().isInterface()) {
+            if (!field.getType().isPrimitive() && !field.getType().isArray() && !field.getType().isEnum() && !field.getType().isInterface()) {
                 try {
                     field.set(object, create(field.getType(), null, null, field.getName()));
                 } catch (SetupNotDefinedException e) {

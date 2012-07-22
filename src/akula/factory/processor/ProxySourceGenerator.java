@@ -19,20 +19,28 @@ public class ProxySourceGenerator {
 
     private Filer filer;
     private ProxyClassNameMapper proxyClassNameMapper;
+    private List<String> generatedFiles;
 
     public ProxySourceGenerator(Filer filer, ProxyClassNameMapper proxyClassNameMapper) {
         this.filer = filer;
         this.proxyClassNameMapper = proxyClassNameMapper;
+        this.generatedFiles = new ArrayList<String>();
     }
 
     void writeSource(TypeElement element) {
         try {
             String proxyClassName = proxyClassNameMapper.map(getCanonicalName(element));
+            if (generatedFiles.contains(proxyClassName)) {
+                System.out.println(format("FACTORY LOG: skipping generating source for alias of %s.", proxyClassName));
+                return;
+            }
             OutputStream os = filer.createSourceFile(BASE_PACKAGE + "." + proxyClassName).openOutputStream();
             PrintWriter pw = new PrintWriter(os);
             pw.print(getSource(element, proxyClassName));
             pw.close();
             os.close();
+            generatedFiles.add(proxyClassName);
+            System.out.println(format("FACTORY LOG: generated source %s.", proxyClassName));
         } catch (Exception e) {
             e.printStackTrace();
         }

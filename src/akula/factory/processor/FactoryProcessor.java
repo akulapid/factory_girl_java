@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import static java.lang.String.format;
+
 @SupportedAnnotationTypes("akula.factory.Factory")
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
 public class FactoryProcessor extends AbstractProcessor {
@@ -28,7 +30,6 @@ public class FactoryProcessor extends AbstractProcessor {
     @Override
     public void init(ProcessingEnvironment processingEnvironment) {
         super.init(processingEnvironment);
-
         proxyClassNameMapper = new ProxyClassNameMapper();
         Filer filer = processingEnvironment.getFiler();
         factoriesSourceGenerator = new FactoriesSourceGenerator(filer, proxyClassNameMapper);
@@ -37,12 +38,20 @@ public class FactoryProcessor extends AbstractProcessor {
 
     @Override
     public boolean process(Set<? extends TypeElement> annotationElements, RoundEnvironment roundEnvironment) {
+        System.out.println(format("FACTORY LOG: processing annotations [%s], round %s", arrayToString(annotationElements), roundEnvironment.toString()));
+
         for (TypeElement annotationElement : annotationElements) {
-            for (Element factorySetupElement : roundEnvironment.getElementsAnnotatedWith(annotationElement)) {
-                if (factorySetupElement instanceof TypeElement) {
-                    TypeElement element = getFactorySetupType(factorySetupElement);
+            Set<? extends Element> elementsAnnotatedWithFactory = roundEnvironment.getElementsAnnotatedWith(annotationElement);
+            System.out.println(format("FACTORY LOG: found @Factory annotated elements: [%s]", arrayToString(elementsAnnotatedWithFactory)));
+
+            for (Element factoryElement : elementsAnnotatedWithFactory) {
+                System.out.println(format("FACTORY LOG: reading %s", factoryElement));
+
+                if (factoryElement instanceof TypeElement) {
+                    System.out.println(format("FACTORY LOG: generating source for %s..", factoryElement));
+                    TypeElement element = getFactorySetupType(factoryElement);
                     elements.add(new ImmutablePair<TypeElement, String>(
-                        element, factorySetupElement.getAnnotation(Factory.class).name()
+                        element, factoryElement.getAnnotation(Factory.class).name()
                     ));
                     proxySourceGenerator.writeSource(element);
                 }
@@ -50,7 +59,15 @@ public class FactoryProcessor extends AbstractProcessor {
         }
         if (roundEnvironment.processingOver())
             factoriesSourceGenerator.writeSource(elements);
+        System.out.println("FACTORY LOG: round completed.");
         return true;
+    }
+
+    private String arrayToString(Set<? extends Element> elements) {
+        String string = "";
+        for (Element element : elements)
+            string += element + ", ";
+        return string.length() > 2? string.substring(0, string.length() - 2) : string;
     }
 
     // see http://blog.retep.org/2009/02/13/getting-class-values-from-annotations-in-an-annotationprocessor

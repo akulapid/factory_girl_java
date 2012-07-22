@@ -24,12 +24,19 @@ public class FactoriesSourceGenerator {
     }
 
     public void writeSource(List<Pair<TypeElement,String>> elements) {
+        String factories = "";
+        for (Pair pair : elements)
+            factories += format("%s, ", ((TypeElement) pair.getLeft()).getQualifiedName().toString());
+        factories = factories.length() > 2? factories.substring(0, factories.length() - 2) : factories;
+        System.out.println(format("FACTORY LOG: generating factories [%s]..", factories));
+
         try {
             OutputStream os = filer.createSourceFile(BASE_PACKAGE + ".Factories").openOutputStream();
             PrintWriter pw = new PrintWriter(os);
             pw.print(getSource(elements));
             pw.close();
             os.close();
+            System.out.println("FACTORY LOG: generated factories.");
         } catch (Exception e) {
             e.printStackTrace();
         }

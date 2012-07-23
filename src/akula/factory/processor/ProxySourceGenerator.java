@@ -130,13 +130,6 @@ public class ProxySourceGenerator {
         return source.toString();
     }
 
-    String getProxySetterName(String methodName) {
-        StringBuilder proxySetterName = new StringBuilder();
-        proxySetterName.append(methodName.substring(3, 4).toLowerCase());
-        proxySetterName.append(methodName.substring(4));
-        return proxySetterName.toString();
-    }
-
     List<ExecutableElement> getSetterMethodElements(TypeElement rootElement) {
         List<ExecutableElement> setterMethodElements = new ArrayList<ExecutableElement>();
         for (Element enclosedElement : rootElement.getEnclosedElements()) {

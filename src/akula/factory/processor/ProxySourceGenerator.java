@@ -28,6 +28,7 @@ public class ProxySourceGenerator {
     }
 
     void writeSource(TypeElement element) {
+        System.out.println(format("FACTORY LOG: generating source for %s..", element));
         try {
             String proxyClassName = proxyClassNameMapper.map(getCanonicalName(element));
             if (generatedFiles.contains(proxyClassName)) {

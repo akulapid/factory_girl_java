@@ -25,8 +25,6 @@ public class FactoryProcessor extends AbstractProcessor {
     private FactoriesSourceGenerator factoriesSourceGenerator;
     private ProxySourceGenerator proxySourceGenerator;
 
-    private List<Pair<TypeElement, String>> elements = new ArrayList<Pair<TypeElement, String>>();
-
     @Override
     public void init(ProcessingEnvironment processingEnvironment) {
         super.init(processingEnvironment);
@@ -48,17 +46,12 @@ public class FactoryProcessor extends AbstractProcessor {
                 System.out.println(format("FACTORY LOG: reading %s", factoryElement));
 
                 if (factoryElement instanceof TypeElement) {
-                    System.out.println(format("FACTORY LOG: generating source for %s..", factoryElement));
                     TypeElement element = getFactorySetupType(factoryElement);
-                    elements.add(new ImmutablePair<TypeElement, String>(
-                        element, factoryElement.getAnnotation(Factory.class).name()
-                    ));
                     proxySourceGenerator.writeSource(element);
+                    factoriesSourceGenerator.writeSource(element, factoryElement.getAnnotation(Factory.class).name());
                 }
             }
         }
-        if (roundEnvironment.processingOver())
-            factoriesSourceGenerator.writeSource(elements);
         System.out.println("FACTORY LOG: round completed.");
         return true;
     }
